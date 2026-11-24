@@ -55,6 +55,7 @@ export interface SpawnConfig {
 
 export interface NavigationConfig {
   lookAheadDistance: number;
+  minTurnThrottle: number;
   avoidanceAngles: number[];
 }
 
@@ -86,7 +87,7 @@ export const OPTION_LIMITS = {
 
 export const DEFAULT_GAME_CONFIG: GameConfig = {
   match: { durationSeconds: 120 },
-  arena: { width: 1536, height: 896, tileSize: 64 },
+  arena: { width: 1536, height: 864, tileSize: 96 },
   spawn: {
     intervalSeconds: 4,
     initialDelaySeconds: 1.5,
@@ -99,6 +100,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
   },
   navigation: {
     lookAheadDistance: 90,
+    minTurnThrottle: 0.2,
     avoidanceAngles: [0.45, 0.9, 1.35, 1.8, 2.4],
   },
   player: {
@@ -106,16 +108,16 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     moveSpeed: 150,
     acceleration: 260,
     turnSpeed: 2.6,
-    collisionRadius: 26,
+    collisionRadius: 30,
     frontCannon: {
       cooldownSeconds: 0.5,
-      projectile: { speed: 480, damage: 20, maxRange: 520, radius: 5 },
+      projectile: { speed: 480, damage: 20, maxRange: 520, radius: 6 },
     },
     broadside: {
       cooldownSeconds: 1.6,
       projectileCount: 3,
-      spacing: 22,
-      projectile: { speed: 420, damage: 20, maxRange: 380, radius: 5 },
+      spacing: 26,
+      projectile: { speed: 420, damage: 20, maxRange: 380, radius: 6 },
     },
   },
   chaser: {
@@ -123,7 +125,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     moveSpeed: 100,
     acceleration: 200,
     turnSpeed: 2,
-    collisionRadius: 24,
+    collisionRadius: 27,
     ramDamage: 20,
   },
   shooter: {
@@ -131,13 +133,13 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     moveSpeed: 80,
     acceleration: 160,
     turnSpeed: 1.7,
-    collisionRadius: 26,
+    collisionRadius: 30,
     attackRange: 420,
     preferredDistance: 300,
     aimToleranceRadians: 0.18,
     cannon: {
       cooldownSeconds: 2.2,
-      projectile: { speed: 320, damage: 10, maxRange: 460, radius: 5 },
+      projectile: { speed: 320, damage: 10, maxRange: 460, radius: 6 },
     },
   },
 };

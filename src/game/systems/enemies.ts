@@ -3,7 +3,7 @@ import type { SimulationContext } from '../simulation/context';
 import { angleTo, distanceSquared, shortestAngleDelta } from '../../utils/math';
 import { applyDamage, emitShot, spawnProjectile } from './combat';
 import { isAreaBlocked, resolveShipAgainstWorld, separateShips } from './collisions';
-import { moveShip, turnInputToward } from './movement';
+import { moveShip, throttleForHeading, turnInputToward } from './movement';
 
 const MUZZLE_GAP = 4;
 
@@ -46,7 +46,8 @@ function updateChaser(context: SimulationContext, chaser: ChaserShip, dt: number
   const stats = context.config.chaser;
   const { player } = context.state;
   const heading = navigationHeading(context, chaser, angleTo(chaser.position, player.position));
-  moveShip(chaser, stats, 1, turnInputToward(chaser, heading, stats.turnSpeed, dt), dt);
+  const throttle = throttleForHeading(chaser, heading, context.config.navigation.minTurnThrottle);
+  moveShip(chaser, stats, throttle, turnInputToward(chaser, heading, stats.turnSpeed, dt), dt);
   resolveShipAgainstWorld(chaser, context.arena);
 }
 
@@ -58,7 +59,10 @@ function updateShooter(context: SimulationContext, shooter: ShooterShip, dt: num
   const approaching = distanceSq > stats.preferredDistance * stats.preferredDistance;
   const heading = approaching ? navigationHeading(context, shooter, aimAngle) : aimAngle;
 
-  moveShip(shooter, stats, approaching ? 1 : 0, turnInputToward(shooter, heading, stats.turnSpeed, dt), dt);
+  const throttle = approaching
+    ? throttleForHeading(shooter, heading, context.config.navigation.minTurnThrottle)
+    : 0;
+  moveShip(shooter, stats, throttle, turnInputToward(shooter, heading, stats.turnSpeed, dt), dt);
   resolveShipAgainstWorld(shooter, context.arena);
 
   shooter.cooldown = Math.max(0, shooter.cooldown - dt);

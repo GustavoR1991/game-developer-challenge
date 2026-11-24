@@ -1,6 +1,6 @@
 import type { MatchConfig } from '../config/gameConfig';
 import { createRandom } from '../core/random';
-import type { GameEvent } from '../entities/types';
+import type { GameEvent, Ship } from '../entities/types';
 import type { InputCommands } from '../input/commands';
 import { endMatch } from '../systems/combat';
 import { updateEnemies } from '../systems/enemies';
@@ -27,6 +27,12 @@ function removeDead<T extends { alive: boolean }>(items: T[]): void {
     }
   }
   items.length = write;
+}
+
+function capturePrevious(ship: Ship): void {
+  ship.previousPosition.x = ship.position.x;
+  ship.previousPosition.y = ship.position.y;
+  ship.previousAngle = ship.angle;
 }
 
 export class GameSimulation {
@@ -63,6 +69,7 @@ export class GameSimulation {
     const { state, context } = this;
     if (state.status !== 'running' || dt <= 0) return;
 
+    this.capturePreviousTransforms();
     const stepSeconds = Math.min(dt, this.remainingSeconds);
     state.elapsedSeconds += stepSeconds;
 
@@ -89,6 +96,16 @@ export class GameSimulation {
     return drained;
   }
 
+  private capturePreviousTransforms(): void {
+    const { player, enemies, projectiles } = this.state;
+    capturePrevious(player);
+    for (const enemy of enemies) capturePrevious(enemy);
+    for (const projectile of projectiles) {
+      projectile.previousPosition.x = projectile.position.x;
+      projectile.previousPosition.y = projectile.position.y;
+    }
+  }
+
   private nextId(): number {
     this.idCounter += 1;
     return this.idCounter;
@@ -106,7 +123,9 @@ export class GameSimulation {
         id: this.nextId(),
         kind: 'player',
         position: { x: start.x, y: start.y },
+        previousPosition: { x: start.x, y: start.y },
         angle: start.angle,
+        previousAngle: start.angle,
         speed: 0,
         health: player.maxHealth,
         maxHealth: player.maxHealth,

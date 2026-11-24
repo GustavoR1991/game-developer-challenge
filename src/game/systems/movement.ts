@@ -15,6 +15,11 @@ export function moveShip(
   ship.position.y += Math.sin(ship.angle) * ship.speed * dt;
 }
 
+export function throttleForHeading(ship: Ship, targetAngle: number, minThrottle: number): number {
+  const error = Math.abs(shortestAngleDelta(ship.angle, targetAngle));
+  return clamp(1 - error / Math.PI, minThrottle, 1);
+}
+
 export function turnInputToward(ship: Ship, targetAngle: number, turnSpeed: number, dt: number): number {
   const maxStep = turnSpeed * dt;
   if (maxStep <= 0) return 0;

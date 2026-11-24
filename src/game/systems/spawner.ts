@@ -56,10 +56,13 @@ function trySpawnEnemy(context: SimulationContext): void {
     return;
   }
 
+  const angle = angleTo(point, state.player.position);
   const base = {
     id: context.nextId(),
     position: point,
-    angle: angleTo(point, state.player.position),
+    previousPosition: { x: point.x, y: point.y },
+    angle,
+    previousAngle: angle,
     speed: 0,
     health: stats.maxHealth,
     maxHealth: stats.maxHealth,

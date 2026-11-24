@@ -22,6 +22,7 @@ export function spawnProjectile(
     id: context.nextId(),
     owner,
     position: { x, y },
+    previousPosition: { x, y },
     velocityX: Math.cos(angle) * projectile.speed,
     velocityY: Math.sin(angle) * projectile.speed,
     speed: projectile.speed,

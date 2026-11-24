@@ -24,6 +24,10 @@ export class FixedStepClock {
     return steps;
   }
 
+  get alpha(): number {
+    return this.accumulator / this.stepSeconds;
+  }
+
   reset(): void {
     this.accumulator = 0;
   }

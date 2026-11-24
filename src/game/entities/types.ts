@@ -10,7 +10,9 @@ export type DestroyCause = 'projectile' | 'ram';
 interface ShipBase {
   id: number;
   position: Vec2;
+  previousPosition: Vec2;
   angle: number;
+  previousAngle: number;
   speed: number;
   health: number;
   maxHealth: number;
@@ -39,6 +41,7 @@ export interface Projectile {
   id: number;
   owner: ProjectileOwner;
   position: Vec2;
+  previousPosition: Vec2;
   velocityX: number;
   velocityY: number;
   speed: number;
