@@ -43,7 +43,12 @@ function useAssets(): [LoadState, () => void] {
   useEffect(() => {
     let cancelled = false;
     loadCombatTextures(window.devicePixelRatio || 1, (progress) => {
-      if (!cancelled) setState({ kind: 'loading', progress });
+      if (cancelled) return;
+      setState((current) =>
+        current.kind === 'loading'
+          ? { kind: 'loading', progress: Math.max(current.progress, progress) }
+          : current,
+      );
     })
       .then((textures) => {
         if (!cancelled) setState({ kind: 'ready', textures });

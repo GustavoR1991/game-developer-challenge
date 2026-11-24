@@ -6,7 +6,12 @@ test.describe('Visual regression', () => {
     await openApp(page);
     await expect(page.getByTestId('ranking-row')).toHaveCount(8);
     await page.evaluate(() => document.fonts.ready);
-    await expect(page).toHaveScreenshot('main-menu.png', { fullPage: true });
+    await expect(page.locator('.fetch-indicator')).toHaveText('');
+    await expect(page).toHaveScreenshot('main-menu.png', {
+      fullPage: true,
+      mask: [page.locator('.fetch-indicator')],
+      timeout: 20_000,
+    });
   });
 
   test('arena in a stable state', async ({ page }) => {

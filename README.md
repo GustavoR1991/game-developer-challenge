@@ -47,7 +47,7 @@ Open http://localhost:5173.
 | `npm run test:e2e:ui` | Playwright UI mode |
 | `npm run test:e2e:update` | Re-record the visual regression baselines |
 | `npm run test:e2e:report` | Open the last HTML report |
-| `npm run perf:profile` | Run the 3-minute performance profile (see [docs/profiling](docs/profiling)) |
+| `npm run perf:profile` | Run the 3-minute performance and memory profile, then `node scripts/profiling-report.mjs "<hardware>"` to rebuild [docs/profiling/README.md](docs/profiling/README.md) |
 | `npm run assets:atlases` | Regenerate the PixiJS atlases from the provided sheets |
 
 ## Environment variables

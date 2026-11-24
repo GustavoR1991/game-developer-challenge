@@ -1,4 +1,5 @@
 import { Assets, Spritesheet, Texture } from 'pixi.js';
+import { assetUrl } from '../../utils/assetUrl';
 
 export interface CombatTextures {
   ships: Spritesheet;
@@ -10,10 +11,6 @@ export interface CombatTextures {
 export type AssetProgressListener = (progress: number) => void;
 
 const HIGH_DENSITY_THRESHOLD = 1.5;
-
-export function assetUrl(path: string): string {
-  return `${import.meta.env.BASE_URL}${path}`;
-}
 
 export function combatAssetUrls(devicePixelRatio: number): Record<keyof CombatTextures, string> {
   const highDensity = devicePixelRatio >= HIGH_DENSITY_THRESHOLD;

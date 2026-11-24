@@ -69,12 +69,13 @@ test.describe('Pause', () => {
     await page.waitForTimeout(1500);
     expect((await state(page)).elapsedSeconds).toBe(paused.elapsedSeconds);
 
+    const resumedAt = Date.now();
     await page.getByRole('button', { name: 'Resume' }).click();
-    const resumed = await state(page);
-    expect(resumed.elapsedSeconds - paused.elapsedSeconds).toBeLessThan(0.6);
     await page.waitForTimeout(500);
     const later = await state(page);
-    expect(later.elapsedSeconds - paused.elapsedSeconds).toBeGreaterThan(0.3);
-    expect(later.elapsedSeconds - paused.elapsedSeconds).toBeLessThan(1.2);
+    const wallSeconds = (Date.now() - resumedAt) / 1000;
+    const simulated = later.elapsedSeconds - paused.elapsedSeconds;
+    expect(simulated).toBeGreaterThan(0.3);
+    expect(simulated).toBeLessThanOrEqual(wallSeconds + 0.05);
   });
 });

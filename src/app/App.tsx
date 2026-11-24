@@ -1,14 +1,27 @@
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { SubmissionWorker } from '../api/submissions/SubmissionWorker';
 import { loadProfile, type PlayerProfile } from '../storage/profileStorage';
-import { GameScreen } from '../ui/screens/GameScreen';
 import { MainMenuScreen } from '../ui/screens/MainMenuScreen';
 import { OptionsScreen } from '../ui/screens/OptionsScreen';
 import { ResultScreen } from '../ui/screens/ResultScreen';
 import { AppServicesContext, type AppServices } from './AppServices';
 import type { NetworkControl } from './networkControl';
 import { useRoute } from './router';
+
+const GameScreen = lazy(() =>
+  import('../ui/screens/GameScreen').then((module) => ({ default: module.GameScreen })),
+);
+
+function GameScreenFallback() {
+  return (
+    <div className="game-screen" data-testid="game-screen-loading">
+      <div className="overlay" role="status">
+        Preparing the battle…
+      </div>
+    </div>
+  );
+}
 
 interface AppProps {
   queryClient: QueryClient;
@@ -21,7 +34,11 @@ function CurrentScreen() {
     case 'options':
       return <OptionsScreen />;
     case 'play':
-      return <GameScreen />;
+      return (
+        <Suspense fallback={<GameScreenFallback />}>
+          <GameScreen />
+        </Suspense>
+      );
     case 'result':
       return <ResultScreen />;
     default:

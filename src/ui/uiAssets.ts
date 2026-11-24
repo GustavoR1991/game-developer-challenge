@@ -1,4 +1,4 @@
-import { assetUrl } from '../game/assets/combatAssets';
+import { assetUrl } from '../utils/assetUrl';
 
 export type UiIconName =
   | 'close'

@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-11-24T20:57:18.370Z",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+    "hardwareConcurrency": 12,
+    "deviceMemory": 32,
+    "devicePixelRatio": 1,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "webglRenderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "webglVendor": "Google Inc. (NVIDIA)"
+  },
+  "procedure": "Menu loaded, then five cycles of: Play, 12 s of real-time combat holding fire and turning, pause, Main Menu. Heap measured after forced GC (CDP HeapProfiler.collectGarbage).",
+  "baseline": {
+    "heapMb": 6.37,
+    "windowListeners": 23,
+    "documentListeners": 4
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "heapInMatchMb": 9.22,
+      "heapAfterLeaveMb": 8.88,
+      "windowListeners": 23,
+      "documentListeners": 4,
+      "canvases": 0
+    },
+    {
+      "cycle": 2,
+      "heapInMatchMb": 9.75,
+      "heapAfterLeaveMb": 9.25,
+      "windowListeners": 23,
+      "documentListeners": 4,
+      "canvases": 0
+    },
+    {
+      "cycle": 3,
+      "heapInMatchMb": 10.06,
+      "heapAfterLeaveMb": 9.52,
+      "windowListeners": 23,
+      "documentListeners": 4,
+      "canvases": 0
+    },
+    {
+      "cycle": 4,
+      "heapInMatchMb": 10.23,
+      "heapAfterLeaveMb": 9.73,
+      "windowListeners": 23,
+      "documentListeners": 4,
+      "canvases": 0
+    },
+    {
+      "cycle": 5,
+      "heapInMatchMb": 10.47,
+      "heapAfterLeaveMb": 9.89,
+      "windowListeners": 23,
+      "documentListeners": 4,
+      "canvases": 0
+    }
+  ],
+  "growthAfterFirstCycleMb": 1.01
+}

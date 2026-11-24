@@ -1,5 +1,5 @@
 import { sound } from '@pixi/sound';
-import { assetUrl } from '../assets/combatAssets';
+import { assetUrl } from '../../utils/assetUrl';
 import type { GameEvent } from '../entities/types';
 import { isMuted } from './soundSettings';
 

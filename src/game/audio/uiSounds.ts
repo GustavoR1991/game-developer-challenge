@@ -1,5 +1,8 @@
-import { playSound } from './soundManager';
+import { isMuted } from './soundSettings';
 
 export function playUiSound(kind: 'click'): void {
-  if (kind === 'click') playSound('click');
+  if (isMuted()) return;
+  void import('./soundManager').then(({ playSound }) => {
+    if (kind === 'click') playSound('click');
+  });
 }
