@@ -100,8 +100,8 @@ export function ResultScreen() {
           <dd>
             {result.config.durationSeconds} s · {result.config.spawnIntervalSeconds} s spawns
           </dd>
-          <dt>Enemies sunk</dt>
-          <dd>{result.stats.enemiesDestroyed}</dd>
+          <dt>Shots fired</dt>
+          <dd>{result.stats.shotsFired}</dd>
         </dl>
         <SubmissionStatus entry={entry} />
         <div className="stack">

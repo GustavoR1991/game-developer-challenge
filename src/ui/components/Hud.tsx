@@ -12,6 +12,7 @@ interface HudProps {
 
 const TIME_ANNOUNCEMENTS = new Set([60, 30, 10, 5]);
 const LOW_TIME_SECONDS = 10;
+const PHASE_LABELS = { running: 'In progress', paused: 'Paused', ended: 'Finished' } as const;
 
 function describeChange(before: HudSnapshot, after: HudSnapshot): string | null {
   if (after.phase !== before.phase) {
@@ -98,6 +99,10 @@ export function Hud({ store, onPause }: HudProps) {
           <dd style={{ margin: 0 }} data-testid="hud-time">
             <time dateTime={`PT${snapshot.remainingSeconds}S`}>{formatClock(snapshot.remainingSeconds)}</time>
           </dd>
+        </div>
+        <div className="sr-only">
+          <dt>Battle status</dt>
+          <dd data-testid="hud-phase">{PHASE_LABELS[snapshot.phase]}</dd>
         </div>
         <button
           type="button"

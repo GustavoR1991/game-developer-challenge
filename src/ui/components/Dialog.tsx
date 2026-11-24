@@ -6,12 +6,20 @@ interface DialogProps {
   children: ReactNode;
   onEscape?: () => void;
   testId?: string;
+  initialFocus?: 'first' | 'container';
 }
 
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export function Dialog({ title, description, children, onEscape, testId }: DialogProps) {
+export function Dialog({
+  title,
+  description,
+  children,
+  onEscape,
+  testId,
+  initialFocus = 'first',
+}: DialogProps) {
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -19,12 +27,12 @@ export function Dialog({ title, description, children, onEscape, testId }: Dialo
   useEffect(() => {
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const panel = panelRef.current;
-    const first = panel?.querySelector<HTMLElement>(FOCUSABLE);
+    const first = initialFocus === 'first' ? panel?.querySelector<HTMLElement>(FOCUSABLE) : null;
     (first ?? panel)?.focus();
     return () => {
       if (previouslyFocused?.isConnected) previouslyFocused.focus();
     };
-  }, []);
+  }, [initialFocus]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape' && onEscape) {

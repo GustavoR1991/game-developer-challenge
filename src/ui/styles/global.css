@@ -67,8 +67,13 @@ select {
   min-height: 100dvh;
   background:
     linear-gradient(rgb(5 20 35 / 35%), rgb(5 20 35 / 35%)),
-    url('/assets/ui_scene_background.png') center / cover no-repeat fixed,
+    url('/assets/ui_scene_background.png') center top / cover no-repeat,
     #1d5f86;
+}
+
+[tabindex='-1']:focus:not(:focus-visible),
+h1[tabindex='-1']:focus {
+  outline: none;
 }
 
 .screen {

@@ -201,5 +201,6 @@ export class GameRenderer {
     };
     this.world.scale.set(scale);
     this.world.position.set(this.viewport.offsetX, this.viewport.offsetY);
+    this.render();
   };
 }

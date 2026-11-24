@@ -1,6 +1,11 @@
 import type { Ticker } from 'pixi.js';
 import type { CombatTextures } from '../assets/combatAssets';
-import { createMatchConfig, type MatchConfig, type MatchOptions } from '../config/gameConfig';
+import {
+  createMatchConfig,
+  type GameConfig,
+  type MatchConfig,
+  type MatchOptions,
+} from '../config/gameConfig';
 import { FixedStepClock } from '../core/fixedStepClock';
 import type { GameEvent } from '../entities/types';
 import { InputController } from '../input/InputController';
@@ -15,6 +20,7 @@ export interface GameSessionOptions {
   host: HTMLElement;
   textures: CombatTextures;
   options: MatchOptions;
+  baseConfig?: GameConfig | undefined;
   seed: number;
   manualClock: boolean;
   resultDelaySeconds: number;
@@ -26,6 +32,7 @@ export interface GameSessionOptions {
 export const SIMULATION_STEP_SECONDS = 1 / 60;
 const MAX_FRAME_SECONDS = 0.25;
 const MAX_ANIMATION_SECONDS = 0.1;
+const MAX_MANUAL_ANIMATION_SECONDS = 2;
 
 export class GameSession {
   readonly hud: HudStore;
@@ -70,11 +77,12 @@ export class GameSession {
     document.addEventListener('visibilitychange', this.handleVisibility);
     renderer.app.ticker.add(this.tick);
     renderer.sync(simulation.state, 1);
-    renderer.app.ticker.start();
+    if (this.manualClock) renderer.render();
+    else renderer.app.ticker.start();
   }
 
   static async create(options: GameSessionOptions, isCancelled: () => boolean): Promise<GameSession | null> {
-    const config = createMatchConfig(options.options);
+    const config = createMatchConfig(options.options, options.baseConfig);
     const arena = createArenaLayout(config.arena);
     const simulation = new GameSimulation({ config, arena, seed: options.seed });
     const renderer = await GameRenderer.create(options.host, options.textures, arena);
@@ -120,6 +128,13 @@ export class GameSession {
   setManualClock(manual: boolean): void {
     this.manualClock = manual;
     this.clock.reset();
+    if (manual) {
+      this.renderer.app.ticker.stop();
+      this.renderer.render();
+    } else {
+      this.skipNextDelta = true;
+      this.renderer.app.ticker.start();
+    }
   }
 
   advance(seconds: number): void {
@@ -129,7 +144,7 @@ export class GameSession {
       if (this.phase === 'running') this.stepOnce(SIMULATION_STEP_SECONDS);
       if (this.phase === 'ended') this.endTimer += SIMULATION_STEP_SECONDS;
     }
-    this.afterFrame(Math.min(seconds, MAX_ANIMATION_SECONDS), 1);
+    this.afterFrame(Math.min(seconds, MAX_MANUAL_ANIMATION_SECONDS), 1);
     this.maybeReport();
     this.renderer.render();
   }
@@ -217,7 +232,8 @@ export class GameSession {
     }
     if (this.phase === 'ended' && !this.manualClock) this.endTimer += frameSeconds;
 
-    const animationSeconds = this.phase === 'paused' ? 0 : Math.min(frameSeconds, MAX_ANIMATION_SECONDS);
+    const animationSeconds =
+      this.phase === 'paused' || this.manualClock ? 0 : Math.min(frameSeconds, MAX_ANIMATION_SECONDS);
     const alpha = this.phase === 'running' && !this.manualClock ? this.clock.alpha : 1;
     this.afterFrame(animationSeconds, alpha);
     this.maybeReport();

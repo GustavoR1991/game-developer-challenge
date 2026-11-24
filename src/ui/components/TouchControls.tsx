@@ -21,6 +21,16 @@ const FIRE: readonly { action: InputAction; icon: UiIconName; label: string }[] 
   { action: 'fireRight', icon: 'fire_right', label: 'Fire right broadside' },
 ];
 
+function setCapture(element: HTMLElement, pointerId: number, capture: boolean): boolean {
+  try {
+    if (capture) element.setPointerCapture(pointerId);
+    else if (element.hasPointerCapture(pointerId)) element.releasePointerCapture(pointerId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function HoldButton({
   action,
   icon,
@@ -36,9 +46,7 @@ function HoldButton({
 }) {
   const [pressed, setPressed] = useState(false);
   const release = (event: PointerEvent<HTMLButtonElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
+    setCapture(event.currentTarget, event.pointerId, false);
     setPressed(false);
     onAction(action, false);
   };
@@ -54,7 +62,7 @@ function HoldButton({
       onContextMenu={(event) => event.preventDefault()}
       onPointerDown={(event) => {
         event.preventDefault();
-        event.currentTarget.setPointerCapture(event.pointerId);
+        setCapture(event.currentTarget, event.pointerId, true);
         setPressed(true);
         onAction(action, true);
       }}

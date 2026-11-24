@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { apiSettings } from '../../api/client/apiRuntime';
 import { API_BASE_URL } from '../../api/client/httpClient';
 import {
-  API_ROUTES,
+  API_ROUTE_PATTERNS,
   DEFAULT_PAGE_SIZE,
   matchConfigSchema,
   matchRecordSchema,
@@ -48,10 +48,12 @@ function latencyMs(latency: LatencyMode): number {
   }
 }
 
+const delayedCommits = new Set<string>();
+
 async function respond(
   endpoint: MockEndpoint,
   produce: () => Response | Promise<Response>,
-  commit?: () => void,
+  commit?: { key: string; run: () => void },
 ): Promise<Response> {
   const behavior = scenarioStore.scenario.endpoints[endpoint];
   await delay(latencyMs(behavior.latency));
@@ -65,7 +67,9 @@ async function respond(
     case 'http':
       return errorResponse(behavior.failure.status, behavior.failure.code, behavior.failure.message);
     case 'timeout-after-commit': {
-      commit?.();
+      if (!commit || delayedCommits.has(commit.key)) return produce();
+      delayedCommits.add(commit.key);
+      commit.run();
       const response = await produce();
       await delay(apiSettings().timeoutMs + TIMEOUT_MARGIN_MS);
       return response;
@@ -80,7 +84,7 @@ function json(body: JsonBodyType, status = 200) {
 }
 
 export const matchHandlers = [
-  http.get(url(API_ROUTES.ranking), ({ request }) =>
+  http.get(url(API_ROUTE_PATTERNS.ranking), ({ request }) =>
     respond('ranking', () => {
       const params = Object.fromEntries(new URL(request.url).searchParams);
       const query = rankingQuerySchema.safeParse(params);
@@ -98,7 +102,7 @@ export const matchHandlers = [
     }),
   ),
 
-  http.get(url(API_ROUTES.playerMatches(':playerId')), ({ request, params }) =>
+  http.get(url(API_ROUTE_PATTERNS.playerMatches), ({ request, params }) =>
     respond('history', () => {
       const query = pageQuerySchema.safeParse(Object.fromEntries(new URL(request.url).searchParams));
       const playerId = typeof params.playerId === 'string' ? params.playerId : '';
@@ -109,7 +113,7 @@ export const matchHandlers = [
     }),
   ),
 
-  http.put(url(API_ROUTES.match(':matchId')), async ({ request, params }) => {
+  http.put(url(API_ROUTE_PATTERNS.match), async ({ request, params }) => {
     const body: unknown = await request.json().catch(() => null);
     const parsed = matchRecordSchema.safeParse(body);
     const matchId = typeof params.matchId === 'string' ? params.matchId : '';
@@ -134,7 +138,7 @@ export const matchHandlers = [
           result.kind === 'created' ? 201 : 200,
         );
       },
-      commit,
+      { key: matchId, run: commit },
     );
   }),
 ];

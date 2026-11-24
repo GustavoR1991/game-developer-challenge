@@ -1,11 +1,17 @@
 import type { ApiRuntimeSettings } from '../../api/client/apiRuntime';
 import type { NetworkControl } from '../../app/networkControl';
 import type { GameSession } from '../bridge/GameSession';
+import { DEFAULT_GAME_CONFIG, type GameConfig } from '../config/gameConfig';
+
+export type BalanceOverrides = {
+  [K in keyof GameConfig]?: Partial<GameConfig[K]>;
+};
 
 export interface TestControls {
   seed: number | null;
   manualClock: boolean;
   resultDelaySeconds: number | null;
+  balance: BalanceOverrides | null;
 }
 
 export interface PirateBattleTestApi {
@@ -26,7 +32,7 @@ declare global {
 
 const SESSION_FLAG = 'pirate-battle:e2e';
 
-const controls: TestControls = { seed: null, manualClock: false, resultDelaySeconds: null };
+const controls: TestControls = { seed: null, manualClock: false, resultDelaySeconds: null, balance: null };
 let activeSession: GameSession | null = null;
 
 export function testHooksEnabled(): boolean {
@@ -42,6 +48,15 @@ export function testHooksEnabled(): boolean {
 
 export function testControls(): TestControls {
   return controls;
+}
+
+export function balancedBaseConfig(): GameConfig | undefined {
+  if (!controls.balance) return undefined;
+  const base = structuredClone(DEFAULT_GAME_CONFIG);
+  for (const [section, values] of Object.entries(controls.balance) as [keyof GameConfig, object][]) {
+    Object.assign(base[section], values);
+  }
+  return base;
 }
 
 export function registerSession(session: GameSession | null): void {

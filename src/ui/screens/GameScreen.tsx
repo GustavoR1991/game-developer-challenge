@@ -9,7 +9,7 @@ import type { HudStore } from '../../game/bridge/HudStore';
 import type { MatchResult } from '../../game/bridge/matchResult';
 import { createRandomSeed } from '../../game/core/random';
 import type { InputAction } from '../../game/input/commands';
-import { registerSession, testControls } from '../../game/testing/testHooks';
+import { balancedBaseConfig, registerSession, testControls } from '../../game/testing/testHooks';
 import { saveLastResult } from '../../storage/lastResultStorage';
 import { loadOptions } from '../../storage/optionsStorage';
 import { createId } from '../../utils/id';
@@ -130,6 +130,7 @@ export function GameScreen() {
         host,
         textures: assets.textures,
         options: loadOptions(),
+        baseConfig: balancedBaseConfig(),
         seed: controls.seed ?? createRandomSeed(),
         manualClock: controls.manualClock,
         resultDelaySeconds: controls.resultDelaySeconds ?? DEFAULT_RESULT_DELAY_SECONDS,
@@ -279,6 +280,7 @@ export function GameScreen() {
           title="Paused"
           description={PAUSE_TEXT[phase.reason ?? 'manual']}
           testId="pause-dialog"
+          initialFocus="container"
           onEscape={resume}
         >
           <div className="stack">

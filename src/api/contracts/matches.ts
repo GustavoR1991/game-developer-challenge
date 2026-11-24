@@ -88,6 +88,12 @@ export const API_ROUTES = {
   match: (matchId: string) => `/matches/${encodeURIComponent(matchId)}`,
 } as const;
 
+export const API_ROUTE_PATTERNS = {
+  ranking: '/ranking',
+  playerMatches: '/players/:playerId/matches',
+  match: '/matches/:matchId',
+} as const;
+
 export function configKey(config: MatchConfigDto): string {
   return `${config.durationSeconds}s-${config.spawnIntervalSeconds}s`;
 }
