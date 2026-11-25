@@ -1106,3 +1106,40 @@ kbd {
     height: 22px;
   }
 }
+
+/* Compact dialogs on phones. In portrait the game screen is rotated, so the
+   short side of the stage is the viewport width, not its height. */
+@media (orientation: portrait) and (hover: none) and (pointer: coarse) and (max-width: 560px),
+  (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-height: 560px) {
+  .game-screen .dialog-backdrop {
+    padding: 8px;
+  }
+
+  .game-screen .dialog-backdrop > .panel {
+    width: min(100%, 360px);
+    padding: 6px 12px 8px;
+    border-width: 26px 22px;
+    border-image-width: 26px 22px;
+  }
+
+  .game-screen .dialog-backdrop .panel__title {
+    margin: 0 0 2px;
+    font-size: 1.3rem;
+  }
+
+  .game-screen .dialog-backdrop .muted {
+    margin: 0 0 10px;
+    font-size: 0.8rem;
+  }
+
+  .game-screen .dialog-backdrop .stack {
+    gap: 6px;
+  }
+
+  .game-screen .dialog-backdrop .game-button {
+    width: 200px;
+    height: 50px;
+    padding: 0 24px 3px;
+    font-size: 1rem;
+  }
+}

@@ -139,7 +139,9 @@ Defined once in `src/api/contracts/matches.ts` with zod and shared by the client
 
 A `MatchRecord` holds `matchId`, `playerId`, `playerName`, `playedAt`, `score`, `durationSeconds` (effective, pauses excluded), `endReason` and the `config` used. Pages carry `items, page, pageSize, totalItems, totalPages, revision`.
 
-The ranking only compares matches with the same configuration and lists each captain once, with their best match. It is ordered by: score (desc), duration survived (desc), date (asc), then match id — a total, deterministic order. Every completed match is still stored once and shown in Match History.
+The ranking only compares matches with the same configuration (session time and spawn interval). Each completed match is stored exactly once on the server and produces exactly one ranking candidate; registering the same match again (retry, double click, timeout after commit) returns the existing record and never adds a second one.
+
+To keep the board readable, the ranking *view* shows one row per captain: that captain's best match for the selected configuration. This is a deliberate presentation decision, not a loss of data: every match stays in the database and in Match History, and a worse match never hides a better one. Rows are ordered by score (desc), duration survived (desc), date (asc), then match id, which is a total, deterministic order with no ties.
 
 ### Client
 

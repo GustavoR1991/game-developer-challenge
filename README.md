@@ -3,6 +3,7 @@
 A top-down 2D naval shooter built with **React**, **TypeScript (strict)** and **PixiJS**. Sail between islands, sink enemy ships and score as many points as you can before the time runs out. Ranking and match history use REST APIs mocked with **MSW**, consumed with **Axios** and **TanStack Query**, and the whole game is covered by **Playwright** end-to-end and visual regression tests.
 
 - Live demo: _add the deployment URL here after `vercel --prod`_
+- Licenses and credits: [LICENSES.md](LICENSES.md)
 - Architecture and decisions: [ARCHITECTURE.md](ARCHITECTURE.md)
 - Original challenge brief (Portuguese): [docs/CHALLENGE.md](docs/CHALLENGE.md)
 
@@ -178,4 +179,8 @@ vercel --prod
 
 ## Assets and licences
 
-All art and sound in `public/assets` were provided with the challenge by Jungle Gaming and are used as the visual base. Only one copy of each image is shipped: the ship atlas (`sheets/ships.png` + `ships.json`, generated from `assets-src/ships_miscellaneous_sheet.xml` by `scripts/build-atlases.mjs` — format conversion only), the tile sheet, the water tile and the UI images. The reference screenshots live in `docs/reference/`. No third-party fonts or remote resources are used.
+All art and sound in `public/assets` were provided with the challenge by Jungle Gaming and are used as the visual base. Only one copy of each image is shipped: the ship atlas (`sheets/ships.png` + `ships.json`, generated from `assets-src/ships_miscellaneous_sheet.xml` by `scripts/build-atlases.mjs` — format conversion only), the tile sheet, the water tile and the UI images. The reference screenshots live in `docs/reference/`. No third-party fonts or remote resources are used (the UI uses the system font stack). The full list of asset origins and library licences is in [LICENSES.md](LICENSES.md).
+
+## Delivery estimate
+
+Estimated delivery time: **2 days** from receiving the brief. The work is submitted through the evaluation platform's delivery link (with email as the fallback channel), together with this repository and the public deployment URL listed at the top of this file.
