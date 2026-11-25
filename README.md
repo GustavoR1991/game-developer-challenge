@@ -70,7 +70,7 @@ All are optional. Copy `.env.example` to `.env.local` to change them.
 | Right broadside (3 balls) | `E` / `L` | right fire button |
 | Pause | `Esc` / `P` or the pause button | pause button |
 
-The map is larger than the screen; the camera follows your ship. Sound effects can be turned on or off in Options.
+The map is larger than the screen; the camera follows your ship.
 
 Moving and firing work at the same time. Game keys are only captured while a battle is running; in menus and dialogs the keyboard behaves normally. Every menu is fully usable with `Tab`, `Shift+Tab`, `Enter`, `Space` and the arrow keys (tabs).
 

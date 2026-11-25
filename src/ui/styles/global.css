@@ -593,13 +593,13 @@ kbd {
 }
 
 .stepper__value {
-  width: 3.6ch;
+  min-width: 1.4ch;
   padding: 2px 0;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
   background: transparent;
-  text-align: right;
+  text-align: center;
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 700;
@@ -626,7 +626,6 @@ kbd {
 
 .stepper__unit {
   margin-left: -14px;
-  min-width: 1.4ch;
   text-align: left;
   font-family: var(--font-display);
   font-size: 1.35rem;
@@ -1106,18 +1105,4 @@ kbd {
     width: 22px;
     height: 22px;
   }
-}
-
-.sound-field {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sound-field input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--gold);
 }
