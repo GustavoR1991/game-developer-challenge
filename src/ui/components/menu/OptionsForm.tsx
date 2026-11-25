@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from 'react';
+import { setMuted, useMuted } from '../../../game/audio/soundSettings';
 import { useAppServices } from '../../../app/AppServices';
 import { OPTION_LIMITS, type MatchOptions } from '../../../game/config/gameConfig';
 import {
@@ -52,6 +53,7 @@ export function OptionsForm({
   const [nameError, setNameError] = useState<string | null>(null);
   const [status, setStatus] = useState('');
   const baseId = useId();
+  const muted = useMuted();
 
   const step = (field: OptionsField, direction: 1 | -1) => {
     const limits = OPTION_LIMITS[field];
@@ -169,6 +171,12 @@ export function OptionsForm({
               {nameError}
             </span>
           ) : null}
+        </div>
+        <div className="field">
+          <label className="sound-field">
+            <input type="checkbox" checked={!muted} onChange={(event) => setMuted(!event.target.checked)} />
+            Sound effects
+          </label>
         </div>
       </div>
       <p role="status" className="success-text" style={{ minHeight: '1.3em' }} data-testid="options-status">

@@ -123,7 +123,6 @@ export async function loadCombatTextures(
           tileSheet,
           { x: column * SOURCE_TILE, y: row * SOURCE_TILE, width: SOURCE_TILE, height: SOURCE_TILE },
           scale,
-          0,
         );
         tiles.set(index, created);
         return created;

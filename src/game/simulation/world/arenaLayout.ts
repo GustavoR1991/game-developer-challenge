@@ -67,10 +67,10 @@ const COLLIDER_INSET_RATIO = 0.16;
 const COLLIDER_CORNER_RATIO = 0.55;
 
 export const ISLAND_DEFINITIONS: readonly IslandDefinition[] = [
-  { id: 'fortress-0', style: 'sand', tileX: 2, tileY: 1, tilesWide: 6, tilesHigh: 4 },
+  { id: 'fortress-0', style: 'grass', tileX: 2, tileY: 1, tilesWide: 6, tilesHigh: 4 },
   { id: 'reef-0', style: 'sand', tileX: 12, tileY: 1.5, tilesWide: 2, tilesHigh: 2 },
   { id: 'grove-0', style: 'grass', tileX: 16, tileY: 1, tilesWide: 4, tilesHigh: 4 },
-  { id: 'cove-0', style: 'sand', tileX: 3, tileY: 8, tilesWide: 4, tilesHigh: 3 },
+  { id: 'cove-0', style: 'grass', tileX: 3, tileY: 8, tilesWide: 4, tilesHigh: 3 },
   { id: 'islet-0', style: 'sand', tileX: 9, tileY: 8.5, tilesWide: 2, tilesHigh: 2 },
   { id: 'bay-0', style: 'grass', tileX: 14, tileY: 7, tilesWide: 4, tilesHigh: 4 },
   { id: 'spit-0', style: 'sand', tileX: 19, tileY: 8.5, tilesWide: 2, tilesHigh: 2 },

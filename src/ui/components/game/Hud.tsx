@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { setMuted, useMuted } from '../../../game/audio/soundSettings';
 import type { HudSnapshot, HudStore } from '../../../game/session/HudStore';
 import { formatClock } from '../../format';
 import { hudIcon } from '../../uiAssets';
@@ -12,6 +11,9 @@ interface HudProps {
 
 const TIME_ANNOUNCEMENTS = new Set([60, 30, 10, 5]);
 const LOW_TIME_SECONDS = 10;
+const FRAME_WIDTH = 256;
+const FILL_START = 30;
+const FILL_WIDTH = 196;
 const PHASE_LABELS = { running: 'In progress', paused: 'Paused', ended: 'Finished' } as const;
 
 function describeChange(before: HudSnapshot, after: HudSnapshot): string | null {
@@ -39,7 +41,6 @@ function healthLevel(ratio: number): 'green' | 'amber' | 'red' {
 
 export function Hud({ store, onPause }: HudProps) {
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
-  const muted = useMuted();
   const [announcement, setAnnouncement] = useState('');
   const previous = useRef(store.getSnapshot());
 
@@ -75,7 +76,7 @@ export function Hud({ store, onPause }: HudProps) {
             <div
               className="hud-health__fill"
               data-level={level}
-              style={{ width: `${Math.max(0, ratio) * 100}%` }}
+              style={{ width: `${((FILL_START + FILL_WIDTH * Math.max(0, ratio)) / FRAME_WIDTH) * 100}%` }}
             />
             <span className="hud-health__label">
               {snapshot.health} / {snapshot.maxHealth}
@@ -83,7 +84,7 @@ export function Hud({ store, onPause }: HudProps) {
           </div>
         </div>
       </div>
-      <dl className="hud__group" style={{ margin: 0 }}>
+      <dl className="hud__group hud__counters">
         <div className="hud-counter">
           <dt>
             <img src={hudIcon('score')} alt="Score" />
@@ -104,24 +105,15 @@ export function Hud({ store, onPause }: HudProps) {
           <dt>Battle status</dt>
           <dd data-testid="hud-phase">{PHASE_LABELS[snapshot.phase]}</dd>
         </div>
-        <button
-          type="button"
-          className="text-button"
-          aria-pressed={!muted}
-          onClick={() => setMuted(!muted)}
-          data-testid="sound-toggle"
-        >
-          Sound {muted ? 'off' : 'on'}
-        </button>
-        <RoundIconButton
-          icon="pause"
-          label="Pause game"
-          size="small"
-          onClick={onPause}
-          disabled={snapshot.phase !== 'running'}
-          data-testid="pause-button"
-        />
       </dl>
+      <RoundIconButton
+        icon="pause"
+        label="Pause game"
+        className="hud-pause"
+        onClick={onPause}
+        disabled={snapshot.phase !== 'running'}
+        data-testid="pause-button"
+      />
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true" data-testid="hud-announcer">
         {announcement}
       </p>

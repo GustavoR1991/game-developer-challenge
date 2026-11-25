@@ -81,10 +81,8 @@ export class ArenaView extends Container {
       this.addChild(sand);
       return;
     }
-    const grass = new Sprite(this.textures.islands.grass);
+    const grass = this.nineSlice(this.textures.islands.grass, island.tiles, tileSize);
     grass.label = `island-${island.id}`;
-    grass.position.set(island.tiles.x, island.tiles.y);
-    grass.setSize(island.tiles.width, island.tiles.height);
     this.addChild(grass);
   }
 

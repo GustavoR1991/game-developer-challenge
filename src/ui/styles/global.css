@@ -762,8 +762,7 @@ kbd {
   position: fixed;
   inset: 0;
   z-index: 4;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: block;
   background: #12466b;
   touch-action: none;
   user-select: none;
@@ -771,7 +770,8 @@ kbd {
 }
 
 .game-stage {
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   outline: none;
 }
@@ -786,32 +786,53 @@ kbd {
 }
 
 .hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 6px 12px;
-  background: linear-gradient(#0d2236, #0f2c45);
-  border-bottom: 2px solid rgb(0 0 0 / 35%);
-  min-height: 56px;
+  gap: 12px;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 0
+    max(14px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.hud > * {
+  pointer-events: auto;
 }
 
 .hud__group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+
+.hud__counters {
+  margin: 0 0 0 auto;
 }
 
 .hud-health {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
+}
+
+.hud-health > img {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 45%));
 }
 
 .hud-health__bar {
   position: relative;
-  width: 180px;
-  height: 34px;
+  width: 256px;
+  height: 48px;
   background: center / 100% 100% no-repeat
     image-set(
       url('/assets/ui/default/hud/health_frame.png') 1x,
@@ -824,19 +845,28 @@ kbd {
   top: 0;
   bottom: 0;
   left: 0;
-  background: left center / 180px 34px no-repeat;
+  background: left center / 256px 48px no-repeat;
 }
 
 .hud-health__fill[data-level='green'] {
-  background-image: url('/assets/ui/default/hud/health_fill_green.png');
+  background-image: image-set(
+    url('/assets/ui/default/hud/health_fill_green.png') 1x,
+    url('/assets/ui/retina/hud/health_fill_green.png') 2x
+  );
 }
 
 .hud-health__fill[data-level='amber'] {
-  background-image: url('/assets/ui/default/hud/health_fill_amber.png');
+  background-image: image-set(
+    url('/assets/ui/default/hud/health_fill_amber.png') 1x,
+    url('/assets/ui/retina/hud/health_fill_amber.png') 2x
+  );
 }
 
 .hud-health__fill[data-level='red'] {
-  background-image: url('/assets/ui/default/hud/health_fill_red.png');
+  background-image: image-set(
+    url('/assets/ui/default/hud/health_fill_red.png') 1x,
+    url('/assets/ui/retina/hud/health_fill_red.png') 2x
+  );
 }
 
 .hud-health__label {
@@ -844,8 +874,10 @@ kbd {
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
   font-weight: 800;
+  color: #fff;
   text-shadow: 0 1px 2px #000;
 }
 
@@ -853,24 +885,44 @@ kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-width: 118px;
-  height: 42px;
-  padding: 0 14px 2px;
+  gap: 10px;
+  width: 160px;
+  height: 56px;
+  padding: 0 18px 2px;
   background: center / 100% 100% no-repeat
     image-set(
       url('/assets/ui/default/hud/counter_panel.png') 1x,
       url('/assets/ui/retina/hud/counter_panel.png') 2x
     );
+  font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.35rem;
+  color: #fff;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
 }
 
-.hud-counter img,
-.hud-health img {
-  width: 24px;
-  height: 24px;
+.hud-counter dt,
+.hud-counter dd {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.hud-counter img {
+  width: 30px;
+  height: 30px;
+}
+
+.hud-pause {
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 40%));
+}
+
+.hud-pause img {
+  width: 30px;
+  height: 30px;
 }
 
 .hud-counter--warning {
@@ -964,39 +1016,9 @@ kbd {
 }
 
 @media (max-width: 720px) {
-  .hud {
-    padding: 4px 8px;
-    min-height: 48px;
-  }
-
-  .hud-health__bar {
-    width: 120px;
-    height: 26px;
-  }
-
-  .hud-health__fill {
-    background-size: 120px 26px;
-  }
-
-  .hud-counter {
-    min-width: 88px;
-    height: 34px;
-    font-size: 0.95rem;
-  }
-
-  .hud-counter img,
-  .hud-health img {
-    width: 18px;
-    height: 18px;
-  }
 }
 
 @media (max-height: 480px) {
-  .hud {
-    min-height: 44px;
-    padding: 2px 8px;
-  }
-
   .panel {
     border-width: 28px 24px;
     border-image-width: 28px 24px;
@@ -1022,11 +1044,80 @@ kbd {
 
 @media (hover: none) and (pointer: coarse) {
   .app-footer--game {
-    top: 8px;
-    bottom: auto;
+    left: 50%;
+    right: auto;
+    bottom: 8px;
+    transform: translateX(-50%);
   }
 
   .app-footer--game img {
     width: 84px;
   }
+}
+
+@media (max-width: 900px), (max-height: 480px) {
+  .hud {
+    gap: 8px;
+    padding-top: 6px;
+  }
+
+  .hud__group {
+    gap: 8px;
+  }
+
+  .hud-health > img {
+    width: 30px;
+    height: 30px;
+    margin-right: -6px;
+  }
+
+  .hud-health__bar {
+    width: 160px;
+    height: 30px;
+  }
+
+  .hud-health__fill {
+    background-size: 160px 30px;
+  }
+
+  .hud-health__label {
+    font-size: 0.75rem;
+  }
+
+  .hud-counter {
+    width: 104px;
+    height: 36px;
+    gap: 6px;
+    padding: 0 10px 1px;
+    font-size: 0.95rem;
+  }
+
+  .hud-counter img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hud-pause {
+    width: 42px;
+    height: 42px;
+  }
+
+  .hud-pause img {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.sound-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sound-field input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--gold);
 }
