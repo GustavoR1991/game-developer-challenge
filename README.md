@@ -2,7 +2,7 @@
 
 A top-down 2D naval shooter built with **React**, **TypeScript (strict)** and **PixiJS**. Sail between islands, sink enemy ships and score as many points as you can before the time runs out. Ranking and match history use REST APIs mocked with **MSW**, consumed with **Axios** and **TanStack Query**, and the whole game is covered by **Playwright** end-to-end and visual regression tests.
 
-- Live demo: _add the deployment URL here after `vercel --prod`_
+- Live demo: https://game-developer-challenge-jungle-gaming.vercel.app
 - Licenses and credits: [LICENSES.md](LICENSES.md)
 - Architecture and decisions: [ARCHITECTURE.md](ARCHITECTURE.md)
 - Original challenge brief (Portuguese): [docs/CHALLENGE.md](docs/CHALLENGE.md)
