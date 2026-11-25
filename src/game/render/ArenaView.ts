@@ -1,10 +1,9 @@
 import { Container, NineSliceSprite, Sprite, TilingSprite, type Texture } from 'pixi.js';
 import type { Rect } from '../simulation/world/geometry';
-import type { ArenaLayout, DecorationKind, Landmass } from '../simulation/world/arenaLayout';
-import { frame, GRASS_CROP, type CombatTextures } from './combatTextures';
+import type { ArenaLayout, DecorationKind, Island } from '../simulation/world/arenaLayout';
+import { frame, type CombatTextures } from './combatTextures';
 
 const SOURCE_TILE = 64;
-const GRASS_SOURCE_SIZE = 256;
 
 type DecorationSource = { tile: number } | { atlas: string };
 
@@ -39,7 +38,7 @@ export class ArenaView extends Container {
     this.eventMode = 'none';
     this.buildWater(textures.water, arena);
     this.buildShallows(arena);
-    for (const landmass of arena.landmasses) this.buildLandmass(landmass, arena.tileSize);
+    for (const island of arena.islands) this.buildIsland(island, arena.tileSize);
     this.buildDecorations(arena);
   }
 
@@ -66,27 +65,27 @@ export class ArenaView extends Container {
     this.addChild(shallows);
   }
 
-  private buildLandmass(landmass: Landmass, tileSize: number): void {
-    const container = new Container({ label: `landmass-${landmass.id}` });
-    for (const rect of landmass.sand) container.addChild(this.sandSprite(rect, tileSize));
-    for (const join of landmass.joins) {
-      const patch = new Sprite(this.textures.islands.sandCenter);
-      patch.position.set(join.x, join.y);
-      patch.setSize(join.width, join.height);
-      container.addChild(patch);
+  private buildIsland(island: Island, tileSize: number): void {
+    const small = island.tiles.width < tileSize * 3 || island.tiles.height < tileSize * 3;
+    if (island.style === 'sand' && small) {
+      const sand = new Sprite(this.textures.islands.sand);
+      sand.label = `island-${island.id}`;
+      sand.position.set(island.tiles.x, island.tiles.y);
+      sand.setSize(island.tiles.width, island.tiles.height);
+      this.addChild(sand);
+      return;
     }
-    for (const rect of landmass.grass) {
-      const grass = new Sprite(this.textures.islands.grass);
-      const crop = (rect.width * GRASS_CROP) / GRASS_SOURCE_SIZE;
-      grass.position.set(rect.x + crop, rect.y + crop);
-      grass.setSize(rect.width - crop * 2, rect.height - crop * 2);
-      container.addChild(grass);
+    if (island.style === 'sand') {
+      const sand = this.nineSlice(this.textures.islands.sand, island.tiles, tileSize);
+      sand.label = `island-${island.id}`;
+      this.addChild(sand);
+      return;
     }
-    this.addChild(container);
-  }
-
-  private sandSprite(rect: Rect, tileSize: number): NineSliceSprite {
-    return this.nineSlice(this.textures.islands.sand, rect, tileSize);
+    const grass = new Sprite(this.textures.islands.grass);
+    grass.label = `island-${island.id}`;
+    grass.position.set(island.tiles.x, island.tiles.y);
+    grass.setSize(island.tiles.width, island.tiles.height);
+    this.addChild(grass);
   }
 
   private nineSlice(texture: Texture, rect: Rect, tileSize: number): NineSliceSprite {

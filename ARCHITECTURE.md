@@ -17,7 +17,7 @@ src/
     config/            Typed gameplay config + per-match frozen snapshot
     simulation/        GameSimulation, state, events, seeded RNG, fixed-step clock
       systems/         Movement, collisions, player weapons, enemy AI, projectiles, spawner, damage
-      world/           Arena layout (landmasses, decorations) and rounded-rectangle colliders
+      world/           Arena layout (islands, decorations) and rounded-rectangle colliders
     input/             Keyboard + touch -> InputCommands
     render/            PixiJS: textures, camera, arena, ships, health bars, projectiles, effects
     session/           GameSession (loop, lifecycle, pause) and HudStore (React sync)
@@ -103,7 +103,7 @@ Balancing decisions:
 
 ## Assets
 
-`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; islands, the white shallow-water rim, walls, towers, the wooden gate and vegetation are cut from the single tile sheet (sand islands and their shallow rims are drawn from whole blocks with nine-slice sprites, so there are no tile seams); water is a tiling sprite. The whole arena is drawn from four textures and batches well. On screens with a device pixel ratio ≥ 1.5 the 2x tile sheet and water are used. Duplicated copies of the art (loose PNGs already present in the sheets, vector sources, the UI atlas) were removed from the build.
+`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; islands, the white shallow-water rim, walls, towers, the wooden gate and vegetation are cut from the single tile sheet. Every island is drawn from one whole block (a nine-slice sand island, or the complete grass island), never from overlapping pieces, so there are no seams or patches; water is a tiling sprite. The whole arena is drawn from four textures and batches well. On screens with a device pixel ratio ≥ 1.5 the 2x tile sheet and water are used. Duplicated copies of the art (loose PNGs already present in the sheets, vector sources, the UI atlas) were removed from the build.
 
 `loadCombatTextures` loads them with a progress callback. Failures become an `AssetLoadError`; the game screen shows an error dialog with Retry, and Pixi's loader drops failed entries from its cache, so retrying fetches again.
 

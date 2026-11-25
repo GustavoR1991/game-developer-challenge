@@ -4,7 +4,6 @@ import { assetUrl } from '../../utils/assetUrl';
 export interface IslandTextures {
   sand: Texture;
   shallow: Texture;
-  sandCenter: Texture;
   grass: Texture;
   scale: number;
 }
@@ -29,7 +28,6 @@ const HIGH_DENSITY_THRESHOLD = 1.5;
 const SHEET_BASE_WIDTH = 1024;
 const SHEET_COLUMNS = 16;
 const SOURCE_TILE = 64;
-export const GRASS_CROP = 40;
 const textureCache = new Map<string, CombatTextures>();
 
 interface SheetRect {
@@ -41,13 +39,7 @@ interface SheetRect {
 
 const SAND_BLOCK: SheetRect = { x: 0, y: 0, width: 192, height: 192 };
 const SHALLOW_BLOCK: SheetRect = { x: 576, y: 0, width: 192, height: 192 };
-const SAND_CENTER: SheetRect = { x: 72, y: 72, width: 48, height: 48 };
-const GRASS_BLOCK: SheetRect = {
-  x: 320 + GRASS_CROP,
-  y: GRASS_CROP,
-  width: 256 - GRASS_CROP * 2,
-  height: 256 - GRASS_CROP * 2,
-};
+const GRASS_BLOCK: SheetRect = { x: 320, y: 0, width: 256, height: 256 };
 
 function highDensity(devicePixelRatio: number): boolean {
   return devicePixelRatio >= HIGH_DENSITY_THRESHOLD;
@@ -114,7 +106,6 @@ export async function loadCombatTextures(
       islands: {
         sand: subTexture(tileSheet, SAND_BLOCK, scale),
         shallow: subTexture(tileSheet, SHALLOW_BLOCK, scale),
-        sandCenter: subTexture(tileSheet, SAND_CENTER, scale),
         grass: subTexture(tileSheet, GRASS_BLOCK, scale),
         scale,
       },

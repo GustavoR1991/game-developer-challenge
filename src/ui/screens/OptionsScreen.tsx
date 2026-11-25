@@ -15,7 +15,7 @@ export function OptionsScreen() {
 
   return (
     <main className="screen" data-testid="options-screen">
-      <section className="panel" aria-labelledby="options-title">
+      <section className="panel panel--options" aria-labelledby="options-title">
         <h1 id="options-title" ref={headingRef} tabIndex={-1} className="panel__title">
           Options
         </h1>

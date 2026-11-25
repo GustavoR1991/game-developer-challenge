@@ -109,6 +109,7 @@ export function OptionsForm({
                   onClick={() => step(field, -1)}
                 />
                 <input
+                  className="stepper__value"
                   id={inputId}
                   name={field}
                   type="number"
@@ -124,6 +125,9 @@ export function OptionsForm({
                     setStatus('');
                   }}
                 />
+                <span className="stepper__unit" aria-hidden="true">
+                  s
+                </span>
                 <RoundIconButton
                   icon="plus"
                   label={`Increase ${label.toLowerCase()}`}

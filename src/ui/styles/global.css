@@ -589,10 +589,64 @@ kbd {
 .stepper {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
 }
 
-.stepper input,
+.stepper__value {
+  width: 3.6ch;
+  padding: 2px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--cream);
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.stepper__value::-webkit-outer-spin-button,
+.stepper__value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper__value:focus-visible {
+  outline: none;
+  border-bottom-color: var(--focus);
+}
+
+.stepper__value[aria-invalid='true'] {
+  color: var(--danger);
+  border-bottom-color: var(--danger);
+}
+
+.stepper__unit {
+  margin-left: -14px;
+  min-width: 1.4ch;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--cream);
+}
+
+.panel--options {
+  width: min(100%, 620px);
+  padding: 28px 40px 20px;
+}
+
+.panel--options .form-grid {
+  gap: 14px;
+}
+
+.panel--options .field label {
+  font-size: 0.95rem;
+}
+
 .text-input {
   width: 96px;
   padding: 8px 10px;
