@@ -8,19 +8,31 @@ import {
 import { clamp, type Vec2 } from '../../../utils/math';
 
 const MAX_RESOLVE_PASSES = 3;
+const HULL_OFFSET_RATIO = 0.75;
+const HULL_RADIUS_RATIO = 0.65;
 
 export function resolveShipAgainstWorld(ship: Ship, arena: ArenaLayout): boolean {
   let collided = false;
 
   for (let pass = 0; pass < MAX_RESOLVE_PASSES; pass += 1) {
     let pushed = false;
-    for (const island of arena.islands) {
-      const penetration = circleRoundedRectPenetration(ship.position, ship.radius, island.collider);
-      if (!penetration) continue;
-      ship.position.x += penetration.normalX * penetration.depth;
-      ship.position.y += penetration.normalY * penetration.depth;
-      pushed = true;
-      collided = true;
+    const forwardX = Math.cos(ship.angle) * ship.radius * HULL_OFFSET_RATIO;
+    const forwardY = Math.sin(ship.angle) * ship.radius * HULL_OFFSET_RATIO;
+    const probes = [
+      { x: 0, y: 0, radius: ship.radius },
+      { x: forwardX, y: forwardY, radius: ship.radius * HULL_RADIUS_RATIO },
+      { x: -forwardX, y: -forwardY, radius: ship.radius * HULL_RADIUS_RATIO },
+    ];
+    for (const probe of probes) {
+      for (const island of arena.islands) {
+        const center = { x: ship.position.x + probe.x, y: ship.position.y + probe.y };
+        const penetration = circleRoundedRectPenetration(center, probe.radius, island.collider);
+        if (!penetration) continue;
+        ship.position.x += penetration.normalX * penetration.depth;
+        ship.position.y += penetration.normalY * penetration.depth;
+        pushed = true;
+        collided = true;
+      }
     }
     if (!pushed) break;
   }

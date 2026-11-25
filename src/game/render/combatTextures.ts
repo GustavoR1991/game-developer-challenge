@@ -1,13 +1,6 @@
 import { Assets, Rectangle, Spritesheet, Texture } from 'pixi.js';
 import { assetUrl } from '../../utils/assetUrl';
 
-export interface IslandTextures {
-  sand: Texture;
-  shallow: Texture;
-  grass: Texture;
-  scale: number;
-}
-
 export interface HealthBarSources {
   frame: Texture;
   green: Texture;
@@ -17,7 +10,6 @@ export interface HealthBarSources {
 export interface CombatTextures {
   ships: Spritesheet;
   water: Texture;
-  islands: IslandTextures;
   healthBars: HealthBarSources;
   tile(index: number): Texture;
 }
@@ -36,10 +28,6 @@ interface SheetRect {
   width: number;
   height: number;
 }
-
-const SAND_BLOCK: SheetRect = { x: 0, y: 0, width: 192, height: 192 };
-const SHALLOW_BLOCK: SheetRect = { x: 576, y: 0, width: 192, height: 192 };
-const GRASS_BLOCK: SheetRect = { x: 320, y: 0, width: 256, height: 256 };
 
 function highDensity(devicePixelRatio: number): boolean {
   return devicePixelRatio >= HIGH_DENSITY_THRESHOLD;
@@ -103,12 +91,6 @@ export async function loadCombatTextures(
     const textures: CombatTextures = {
       ships,
       water: texture(urls.water),
-      islands: {
-        sand: subTexture(tileSheet, SAND_BLOCK, scale),
-        shallow: subTexture(tileSheet, SHALLOW_BLOCK, scale),
-        grass: subTexture(tileSheet, GRASS_BLOCK, scale),
-        scale,
-      },
       healthBars: {
         frame: texture(urls.healthFrame),
         green: texture(urls.healthGreen),

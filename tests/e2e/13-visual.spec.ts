@@ -1,16 +1,24 @@
+import type { Page } from '@playwright/test';
 import { advance, expect, openApp, startMatch, test } from '../fixtures/pirate';
+
+async function settled(page: Page): Promise<void> {
+  await page.waitForLoadState('networkidle');
+  await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete));
+  await page.evaluate(() => document.fonts.ready);
+}
 import { playUntilResult, QUICK_DEATH } from './helpers/endMatch';
 
 test.describe('Visual regression', () => {
   test('main menu', async ({ page }) => {
     await openApp(page);
-    await page.evaluate(() => document.fonts.ready);
+    await settled(page);
     await expect(page).toHaveScreenshot('main-menu.png', { fullPage: true, timeout: 20_000 });
   });
 
   test('captains log ranking', async ({ page }) => {
     await openApp(page, { route: 'ranking' });
     await expect(page.getByTestId('ranking-row')).toHaveCount(5);
+    await settled(page);
     await expect(page.locator('.fetch-indicator')).toHaveText('');
     await expect(page).toHaveScreenshot('ranking.png', {
       fullPage: true,
@@ -39,6 +47,7 @@ test.describe('Visual regression', () => {
     });
     await playUntilResult(page);
     await expect(page.getByTestId('submission-status')).toHaveAttribute('data-status', 'confirmed');
+    await settled(page);
     await expect(page).toHaveScreenshot('result.png', { fullPage: true });
   });
 });

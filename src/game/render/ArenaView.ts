@@ -1,9 +1,7 @@
-import { Container, NineSliceSprite, Sprite, TilingSprite, type Texture } from 'pixi.js';
-import type { Rect } from '../simulation/world/geometry';
-import type { ArenaLayout, DecorationKind, Island } from '../simulation/world/arenaLayout';
+import { Container, Graphics, Sprite, TilingSprite, type Texture } from 'pixi.js';
+import type { ArenaLayout, DecorationKind, Landmass } from '../simulation/world/arenaLayout';
 import { frame, type CombatTextures } from './combatTextures';
-
-const SOURCE_TILE = 64;
+import { buildOutlines } from './terrainShapes';
 
 type DecorationSource = { tile: number } | { atlas: string };
 
@@ -25,8 +23,33 @@ const DECORATION_SOURCES: Readonly<Record<DecorationKind, DecorationSource>> = {
   crew: { atlas: 'crew_3' },
 };
 
-const SHALLOW_MARGIN_RATIO = 0.6;
+const TERRAIN = {
+  shallowOuter: { width: 2.3, alpha: 0.2 },
+  shallowInner: { width: 1.2, alpha: 0.22 },
+  sand: 0xe2bd88,
+  wetSand: { color: 0xc4945d, width: 26, alpha: 0.4 },
+  sandOutline: { color: 0x9c6f43, width: 3, alpha: 0.7 },
+  grass: 0x5f9e31,
+  grassLight: 0x7dba45,
+  grassEdge: { color: 0x3f7b22, width: 7, alpha: 0.85 },
+  sandCorner: 0.62,
+  sandConcave: 0.18,
+  grassCorner: 0.5,
+  sandWobble: 4,
+  grassWobble: 9,
+  tufts: [87, 88],
+};
+
 const WATER_TILE_SCALE = 1.5;
+const SHALLOW_RESOLUTION = 0.5;
+
+function pseudoRandom(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
 
 export class ArenaView extends Container {
   private readonly textures: CombatTextures;
@@ -37,8 +60,21 @@ export class ArenaView extends Container {
     this.label = 'arena';
     this.eventMode = 'none';
     this.buildWater(textures.water, arena);
-    this.buildShallows(arena);
-    for (const island of arena.islands) this.buildIsland(island, arena.tileSize);
+
+    const sandOutlines = arena.landmasses.map((landmass, index) =>
+      buildOutlines(landmass.sand, {
+        cellSize: arena.tileSize / 2,
+        cornerRadius: arena.tileSize * TERRAIN.sandCorner,
+        concaveRadius: arena.tileSize * TERRAIN.sandConcave,
+        wobble: TERRAIN.sandWobble,
+        wavelength: arena.tileSize * 0.9,
+        seed: index + 1,
+      }),
+    );
+    this.buildShallows(sandOutlines.flat(), arena.tileSize);
+    arena.landmasses.forEach((landmass, index) =>
+      this.buildLandmass(landmass, sandOutlines[index] ?? [], arena.tileSize, index),
+    );
     this.buildDecorations(arena);
   }
 
@@ -49,58 +85,90 @@ export class ArenaView extends Container {
     this.addChild(water);
   }
 
-  private buildShallows(arena: ArenaLayout): void {
+  private buildShallows(outlines: number[][], tileSize: number): void {
     const shallows = new Container({ label: 'shallows' });
-    const margin = arena.tileSize * SHALLOW_MARGIN_RATIO;
-    for (const island of arena.islands) {
-      const { x, y, width, height } = island.tiles;
-      shallows.addChild(
-        this.nineSlice(
-          this.textures.islands.shallow,
-          { x: x - margin, y: y - margin, width: width + margin * 2, height: height + margin * 2 },
-          arena.tileSize,
-        ),
-      );
+    for (const band of [TERRAIN.shallowOuter, TERRAIN.shallowInner]) {
+      const layer = new Graphics();
+      for (const outline of outlines) {
+        layer.poly(outline, true).fill(0xffffff);
+        layer.poly(outline, true).stroke({ width: band.width * tileSize, color: 0xffffff, join: 'round' });
+      }
+      const holder = new Container();
+      holder.addChild(layer);
+      holder.cacheAsTexture({ resolution: SHALLOW_RESOLUTION, antialias: true });
+      holder.alpha = band.alpha;
+      shallows.addChild(holder);
     }
     this.addChild(shallows);
   }
 
-  private buildIsland(island: Island, tileSize: number): void {
-    const small = island.tiles.width < tileSize * 3 || island.tiles.height < tileSize * 3;
-    if (island.style === 'sand' && small) {
-      const sand = new Sprite(this.textures.islands.sand);
-      sand.label = `island-${island.id}`;
-      sand.position.set(island.tiles.x, island.tiles.y);
-      sand.setSize(island.tiles.width, island.tiles.height);
-      this.addChild(sand);
-      return;
+  private buildLandmass(landmass: Landmass, sandOutlines: number[][], tileSize: number, index: number): void {
+    const land = new Graphics({ label: `landmass-${landmass.id}` });
+    for (const outline of sandOutlines) {
+      land.poly(outline, true).fill(TERRAIN.sand);
+      land.poly(outline, true).stroke({ ...TERRAIN.wetSand, join: 'round' });
+      land.poly(outline, true).stroke({ ...TERRAIN.sandOutline, join: 'round' });
     }
-    if (island.style === 'sand') {
-      const sand = this.nineSlice(this.textures.islands.sand, island.tiles, tileSize);
-      sand.label = `island-${island.id}`;
-      this.addChild(sand);
-      return;
+
+    const grassOutlines = buildOutlines(landmass.grass, {
+      cellSize: tileSize / 2,
+      cornerRadius: tileSize * TERRAIN.grassCorner,
+      concaveRadius: tileSize * TERRAIN.grassCorner,
+      wobble: TERRAIN.grassWobble,
+      wavelength: tileSize * 0.55,
+      seed: (index + 1) * 7,
+    });
+    for (const outline of grassOutlines) {
+      land.poly(outline, true).fill(TERRAIN.grass);
+      land.poly(outline, true).stroke({ ...TERRAIN.grassEdge, join: 'round' });
     }
-    const grass = this.nineSlice(this.textures.islands.grass, island.tiles, tileSize);
-    grass.label = `island-${island.id}`;
-    this.addChild(grass);
+    this.addChild(land);
+
+    if (grassOutlines.length > 0) this.buildGrassDetails(landmass, grassOutlines, tileSize, index);
   }
 
-  private nineSlice(texture: Texture, rect: Rect, tileSize: number): NineSliceSprite {
-    const border = SOURCE_TILE * this.textures.islands.scale;
-    const scale = tileSize / border;
-    const sprite = new NineSliceSprite({
-      texture,
-      leftWidth: border,
-      rightWidth: border,
-      topHeight: border,
-      bottomHeight: border,
-      width: rect.width / scale,
-      height: rect.height / scale,
-    });
-    sprite.position.set(rect.x, rect.y);
-    sprite.scale.set(scale);
-    return sprite;
+  private buildGrassDetails(
+    landmass: Landmass,
+    grassOutlines: number[][],
+    tileSize: number,
+    index: number,
+  ): void {
+    const random = pseudoRandom(9_000 + index * 131);
+    const details = new Container({ label: `grass-details-${landmass.id}` });
+    const blotches = new Graphics();
+    const mask = new Graphics();
+    for (const outline of grassOutlines) mask.poly(outline, true).fill(0xffffff);
+
+    for (const rect of landmass.grass) {
+      const area = (rect.width * rect.height) / (tileSize * tileSize);
+      for (let blotch = 0; blotch < Math.ceil(area * 0.7); blotch += 1) {
+        blotches.ellipse(
+          rect.x + random() * rect.width,
+          rect.y + random() * rect.height,
+          tileSize * (0.4 + random() * 0.5),
+          tileSize * (0.22 + random() * 0.3),
+        );
+      }
+      const margin = tileSize * 0.3;
+      for (let tuft = 0; tuft < Math.ceil(area * 0.6); tuft += 1) {
+        const tileIndex = TERRAIN.tufts[tuft % TERRAIN.tufts.length] ?? 87;
+        const sprite = new Sprite(this.textures.tile(tileIndex));
+        sprite.anchor.set(0.5);
+        sprite.scale.set((tileSize * (0.45 + random() * 0.25)) / sprite.texture.width);
+        sprite.position.set(
+          rect.x + margin + random() * Math.max(1, rect.width - margin * 2),
+          rect.y + margin + random() * Math.max(1, rect.height - margin * 2),
+        );
+        sprite.rotation = random() * Math.PI * 2;
+        sprite.alpha = 0.65;
+        details.addChild(sprite);
+      }
+    }
+    blotches.fill({ color: TERRAIN.grassLight, alpha: 0.32 });
+    details.addChildAt(blotches, 0);
+    details.addChild(mask);
+    details.mask = mask;
+    this.addChild(details);
   }
 
   private buildDecorations(arena: ArenaLayout): void {

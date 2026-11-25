@@ -72,7 +72,7 @@ The HUD does not re-render on every frame. After each frame the session builds a
 
 ## Collisions
 
-- Ships and cannonballs are circles. Islands are **rounded rectangles** slightly inset from their tiles so the collision follows the visible sand.
+- Cannonballs are circles. Ships collide with islands through three circles (center, bow and stern) so the long hull does not run onto the beach. Islands are **rounded rectangles** that follow the drawn coastline.
 - Ships are moved first and then pushed out of any overlapping island along the penetration normal (up to three passes), then clamped to the arena. Speeds are low relative to island size, so there is no tunnelling.
 - Cannonballs are removed on the first island or ship they touch, when they leave the arena, or when they have travelled their maximum range. Each one applies damage exactly once (`alive` is cleared before damage is applied).
 - Player cannonballs only hit enemies; enemy cannonballs only hit the player. Destroyed ships are removed from the simulation at the end of the step, so they stop dealing damage, shooting and colliding.
@@ -103,7 +103,7 @@ Balancing decisions:
 
 ## Assets
 
-`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; islands, the white shallow-water rim, walls, towers, the wooden gate and vegetation are cut from the single tile sheet. Every island is drawn from one whole block of the sheet — the sand island or the grass island, stretched as nine-slice sprites so the beach ring stays intact at any size — never from overlapping pieces, so there are no patches; water is a tiling sprite. The whole arena is drawn from four textures and batches well. On screens with a device pixel ratio ≥ 1.5 the 2x tile sheet and water are used. Duplicated copies of the art (loose PNGs already present in the sheets, vector sources, the UI atlas) were removed from the build.
+`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; walls, towers, the wooden gate, palms, rocks and grass tufts are cut from the tile sheet; water is a tiling sprite. The terrain itself is drawn procedurally to match the reference art: each landmass is a union of rectangles on a half-tile grid, its outline is traced from the grid, corners are rounded (large radius outside, small inside), the edge gets a slight organic wobble, and the result is filled as a vector shape — a wide translucent shallow-water band, sand with a wet edge and outline, then grass areas with wavy edges, lighter patches and tufts. Island colliders are the same rectangles, with edges shared inside a landmass extended so the union has no gaps.
 
 `loadCombatTextures` loads them with a progress callback. Failures become an `AssetLoadError`; the game screen shows an error dialog with Retry, and Pixi's loader drops failed entries from its cache, so retrying fetches again.
 

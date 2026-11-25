@@ -45,15 +45,14 @@ test.describe('Movement and arena', () => {
   test('keeps the ship inside the arena limits', async ({ page }) => {
     await openApp(page, { balance: NO_ENEMIES });
     await startMatch(page);
-    await turnTo(page, Math.PI / 2);
     await page.keyboard.down('w');
     let snapshot = await state(page);
-    for (let index = 0; index < 50; index += 1) {
+    for (let index = 0; index < 60; index += 1) {
       snapshot = await advance(page, 0.1);
-      expect(snapshot.player.y).toBeLessThanOrEqual(snapshot.arena.height - snapshot.player.radius + 0.01);
+      expect(snapshot.player.y).toBeGreaterThanOrEqual(snapshot.player.radius - 0.01);
     }
     await page.keyboard.up('w');
-    expect(snapshot.player.y).toBeCloseTo(snapshot.arena.height - snapshot.player.radius, 1);
+    expect(snapshot.player.y).toBeCloseTo(snapshot.player.radius, 1);
   });
 
   test('cannot sail through islands', async ({ page }) => {
