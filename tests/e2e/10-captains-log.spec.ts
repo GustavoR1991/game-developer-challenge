@@ -39,6 +39,7 @@ test.describe('Ranking and Match History', () => {
     await openApp(page, { route: 'ranking', options: { durationSeconds: 90, spawnIntervalSeconds: 3 } });
     const panel = page.getByTestId('ranking-panel');
     await expect(panel).toContainText('90 second battles · 3 second spawn interval');
+    await expect(panel.getByTestId('ranking-row').first()).toBeVisible();
     const count = await panel.getByTestId('ranking-row').count();
     expect(count).toBeGreaterThan(0);
     expect(count).toBeLessThanOrEqual(5);

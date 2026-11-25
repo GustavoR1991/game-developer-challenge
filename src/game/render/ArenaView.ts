@@ -1,4 +1,4 @@
-import { Container, Graphics, NineSliceSprite, Sprite, TilingSprite, type Texture } from 'pixi.js';
+import { Container, NineSliceSprite, Sprite, TilingSprite, type Texture } from 'pixi.js';
 import type { Rect } from '../simulation/world/geometry';
 import type { ArenaLayout, DecorationKind, Landmass } from '../simulation/world/arenaLayout';
 import { frame, GRASS_CROP, type CombatTextures } from './combatTextures';
@@ -18,18 +18,15 @@ const DECORATION_SOURCES: Readonly<Record<DecorationKind, DecorationSource>> = {
   wallHorizontal: { tile: 16 },
   wallVertical: { tile: 15 },
   wallCannon: { tile: 31 },
+  wallCannonHorizontal: { tile: 47 },
+  gate: { tile: 76 },
   dinghy: { atlas: 'dinghy_small_1' },
   dinghyLarge: { atlas: 'dinghy_large_2' },
   looseCannon: { atlas: 'cannon_loose' },
   crew: { atlas: 'crew_3' },
 };
 
-const SHALLOW_BANDS: readonly { margin: number; alpha: number }[] = [
-  { margin: 0.6, alpha: 0.12 },
-  { margin: 0.36, alpha: 0.14 },
-  { margin: 0.14, alpha: 0.18 },
-];
-const SHALLOW_COLOR = 0xdaf8ff;
+const SHALLOW_MARGIN_RATIO = 0.6;
 const WATER_TILE_SCALE = 1.5;
 
 export class ArenaView extends Container {
@@ -54,22 +51,17 @@ export class ArenaView extends Container {
   }
 
   private buildShallows(arena: ArenaLayout): void {
-    const shallows = new Graphics();
-    shallows.label = 'shallows';
-    const inset = arena.tileSize * 0.08;
-    for (const band of SHALLOW_BANDS) {
-      const margin = arena.tileSize * band.margin;
-      for (const island of arena.islands) {
-        const { x, y, width, height } = island.tiles;
-        shallows.roundRect(
-          x - margin + inset,
-          y - margin + inset,
-          width + margin * 2 - inset * 2,
-          height + margin * 2 - inset * 2,
-          arena.tileSize * 0.5 + margin,
-        );
-      }
-      shallows.fill({ color: SHALLOW_COLOR, alpha: band.alpha });
+    const shallows = new Container({ label: 'shallows' });
+    const margin = arena.tileSize * SHALLOW_MARGIN_RATIO;
+    for (const island of arena.islands) {
+      const { x, y, width, height } = island.tiles;
+      shallows.addChild(
+        this.nineSlice(
+          this.textures.islands.shallow,
+          { x: x - margin, y: y - margin, width: width + margin * 2, height: height + margin * 2 },
+          arena.tileSize,
+        ),
+      );
     }
     this.addChild(shallows);
   }
@@ -94,10 +86,14 @@ export class ArenaView extends Container {
   }
 
   private sandSprite(rect: Rect, tileSize: number): NineSliceSprite {
+    return this.nineSlice(this.textures.islands.sand, rect, tileSize);
+  }
+
+  private nineSlice(texture: Texture, rect: Rect, tileSize: number): NineSliceSprite {
     const border = SOURCE_TILE * this.textures.islands.scale;
     const scale = tileSize / border;
     const sprite = new NineSliceSprite({
-      texture: this.textures.islands.sand,
+      texture,
       leftWidth: border,
       rightWidth: border,
       topHeight: border,

@@ -103,7 +103,7 @@ Balancing decisions:
 
 ## Assets
 
-`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; islands, walls, towers and vegetation are cut from the single tile sheet (the sand and grass islands are drawn from whole blocks with a nine-slice sprite, so there are no tile seams); water is a tiling sprite. The whole arena is drawn from four textures and batches well. On screens with a device pixel ratio ≥ 1.5 the 2x tile sheet and water are used. Duplicated copies of the art (loose PNGs already present in the sheets, vector sources, the UI atlas) were removed from the build.
+`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; islands, the white shallow-water rim, walls, towers, the wooden gate and vegetation are cut from the single tile sheet (sand islands and their shallow rims are drawn from whole blocks with nine-slice sprites, so there are no tile seams); water is a tiling sprite. The whole arena is drawn from four textures and batches well. On screens with a device pixel ratio ≥ 1.5 the 2x tile sheet and water are used. Duplicated copies of the art (loose PNGs already present in the sheets, vector sources, the UI atlas) were removed from the build.
 
 `loadCombatTextures` loads them with a progress callback. Failures become an `AssetLoadError`; the game screen shows an error dialog with Retry, and Pixi's loader drops failed entries from its cache, so retrying fetches again.
 

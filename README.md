@@ -156,7 +156,8 @@ Playwright builds the app, serves the production build and runs the suite in **d
 | `10-captains-log` | Ranking/history pagination, loading, empty and error states |
 | `11-registration` | Registration updates both tabs, pending record recovered after refresh |
 | `12-resilience` | Retry after timeout without duplicates, late responses, API failures don't block play |
-| `13-visual` | Visual baselines of the menu, a stable arena and the result screen |
+| `13-visual` | Visual baselines of the menu, the ranking, a stable arena and the result screen |
+| `14-arena-rules` | Projectile direction, speed, range expiry and removal outside the arena; Shooter cooldown |
 
 Reports: `playwright-report/index.html` (HTML report) and `test-results/` (traces, videos and screenshots of failures). Visual baselines are versioned in `tests/e2e/__screenshots__/`. A copy of the last report is kept in [docs/reports](docs/reports).
 

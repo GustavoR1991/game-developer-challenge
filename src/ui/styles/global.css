@@ -184,18 +184,18 @@ h1[tabindex='-1']:focus {
 }
 
 .result-cell {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .result-cell--time_up {
-  color: var(--cream);
+  color: #cfe5ad;
 }
 
 .result-cell--player_destroyed {
-  color: var(--danger);
+  color: #f2ab98;
 }
 
 .pending-note {
@@ -489,20 +489,41 @@ kbd {
 }
 
 .data-table td {
-  padding: 9px 10px;
-  background: rgb(9 18 30 / 55%);
+  padding: 10px 12px;
+  background: rgb(17 31 48 / 92%);
+  border-top: 1px solid rgb(255 255 255 / 4%);
+  border-bottom: 1px solid rgb(0 0 0 / 45%);
+}
+
+.data-table td + td {
+  border-left: 1px solid rgb(0 0 0 / 38%);
+  box-shadow: inset 1px 0 0 rgb(255 255 255 / 4%);
 }
 
 .data-table td:first-child {
-  border-radius: 6px 0 0 6px;
+  border-radius: 4px 0 0 4px;
 }
 
 .data-table td:last-child {
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 4px 4px 0;
 }
 
 .data-table tr.is-player td {
-  background: rgb(246 196 83 / 22%);
+  background: rgb(96 86 52 / 92%);
+  border-top-color: rgb(246 196 83 / 55%);
+  border-bottom-color: rgb(246 196 83 / 55%);
+}
+
+.data-table tr.is-player td:first-child {
+  border-left: 1px solid rgb(246 196 83 / 55%);
+}
+
+.data-table tr.is-player td:last-child {
+  border-right: 1px solid rgb(246 196 83 / 55%);
+}
+
+.date-cell strong {
+  font-weight: 600;
 }
 
 .data-table .numeric {

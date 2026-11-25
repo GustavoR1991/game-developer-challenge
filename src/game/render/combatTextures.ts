@@ -3,6 +3,7 @@ import { assetUrl } from '../../utils/assetUrl';
 
 export interface IslandTextures {
   sand: Texture;
+  shallow: Texture;
   sandCenter: Texture;
   grass: Texture;
   scale: number;
@@ -39,6 +40,7 @@ interface SheetRect {
 }
 
 const SAND_BLOCK: SheetRect = { x: 0, y: 0, width: 192, height: 192 };
+const SHALLOW_BLOCK: SheetRect = { x: 576, y: 0, width: 192, height: 192 };
 const SAND_CENTER: SheetRect = { x: 72, y: 72, width: 48, height: 48 };
 const GRASS_BLOCK: SheetRect = {
   x: 320 + GRASS_CROP,
@@ -111,6 +113,7 @@ export async function loadCombatTextures(
       water: texture(urls.water),
       islands: {
         sand: subTexture(tileSheet, SAND_BLOCK, scale),
+        shallow: subTexture(tileSheet, SHALLOW_BLOCK, scale),
         sandCenter: subTexture(tileSheet, SAND_CENTER, scale),
         grass: subTexture(tileSheet, GRASS_BLOCK, scale),
         scale,

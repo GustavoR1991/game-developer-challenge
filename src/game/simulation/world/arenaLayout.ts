@@ -11,6 +11,8 @@ export type DecorationKind =
   | 'wallHorizontal'
   | 'wallVertical'
   | 'wallCannon'
+  | 'wallCannonHorizontal'
+  | 'gate'
   | 'dinghy'
   | 'dinghyLarge'
   | 'looseCannon'
@@ -100,11 +102,13 @@ export const LANDMASS_DEFINITIONS: readonly LandmassDefinition[] = [
 ];
 
 export const DECORATION_DEFINITIONS: readonly DecorationDefinition[] = [
-  { kind: 'tower', tileX: 2.6, tileY: 1.6, scale: 1.2, rotation: 0 },
-  { kind: 'wallHorizontal', tileX: 3.6, tileY: 1.6, scale: 1, rotation: 0 },
-  { kind: 'tower', tileX: 4.6, tileY: 1.6, scale: 1.2, rotation: 0 },
+  { kind: 'tower', tileX: 2.6, tileY: 1.6, scale: 1, rotation: 0 },
+  { kind: 'wallCannonHorizontal', tileX: 3.6, tileY: 1.6, scale: 1, rotation: 0 },
+  { kind: 'tower', tileX: 4.6, tileY: 1.6, scale: 1, rotation: 0 },
   { kind: 'wallCannon', tileX: 4.6, tileY: 2.6, scale: 1, rotation: 0 },
-  { kind: 'tower', tileX: 4.6, tileY: 3.6, scale: 1.2, rotation: 0 },
+  { kind: 'tower', tileX: 4.6, tileY: 3.6, scale: 1, rotation: 0 },
+  { kind: 'gate', tileX: 5.6, tileY: 3.6, scale: 1, rotation: 0 },
+  { kind: 'tower', tileX: 6.6, tileY: 3.6, scale: 1, rotation: 0 },
   { kind: 'palm', tileX: 2.9, tileY: 3.1, scale: 1, rotation: 0.3 },
   { kind: 'mossyRock', tileX: 8.2, tileY: 1.6, scale: 0.85, rotation: 0 },
   { kind: 'palm', tileX: 6, tileY: 4.6, scale: 0.95, rotation: -0.4 },
