@@ -1,7 +1,7 @@
 import type { EnemyKind, MatchConfig } from '../config/gameConfig';
-import type { Random } from '../core/random';
-import type { EndReason, EnemyShip, GameEvent, PlayerShip, Projectile } from '../entities/types';
-import type { ArenaLayout } from '../world/arenaLayout';
+import type { Random } from './random';
+import type { EndReason, EnemyShip, GameEvent, PlayerShip, Projectile } from './types';
+import type { ArenaLayout } from './world/arenaLayout';
 
 export type MatchStatus = 'running' | 'ended';
 

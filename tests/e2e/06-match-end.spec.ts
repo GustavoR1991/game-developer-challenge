@@ -70,30 +70,36 @@ test.describe('Match end and restart', () => {
     expect(frozen.projectiles).toEqual(ended.projectiles);
   });
 
-  test('restart creates a fresh match', async ({ page }) => {
-    await openApp(page, { balance: { spawn: { initialDelaySeconds: 0.5 } } });
+  test('play again creates a fresh match', async ({ page }) => {
+    await openApp(page, {
+      options: { durationSeconds: 120, spawnIntervalSeconds: 10 },
+      balance: {
+        player: { maxHealth: 20 },
+        spawn: { initialDelaySeconds: 0.5, openingSequence: ['chaser'], weights: { chaser: 1, shooter: 0 } },
+      },
+    });
     await startMatch(page);
-    await hold(page, ['w', 'Space'], 3);
-    const before = await state(page);
-    expect(before.elapsedSeconds).toBeGreaterThan(2.9);
-    expect(before.enemies.length + before.stats.enemiesDestroyed).toBeGreaterThan(0);
+    await page.keyboard.down('Space');
+    const ended = await advanceUntil(page, (current) => current.phase === 'ended', { maxSeconds: 20 });
+    await page.keyboard.up('Space');
+    expect(ended.stats.shotsFired).toBeGreaterThan(0);
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const advanced = await page.evaluate(() => window.__PIRATE_BATTLE__?.advance(0.1) ?? false);
+      if (!advanced) break;
+    }
 
-    await page.keyboard.press('Escape');
-    const dialog = page.getByRole('dialog', { name: 'Paused' });
-    await dialog.getByRole('button', { name: 'Restart' }).click();
+    await page.getByRole('button', { name: 'Play Again' }).click();
     await waitForSession(page);
-    await page.waitForFunction(
-      () => (window.__PIRATE_BATTLE__?.session() as { elapsedSeconds: number } | null)?.elapsedSeconds === 0,
-    );
     const fresh = await state(page);
     expect(fresh.phase).toBe('running');
+    expect(fresh.elapsedSeconds).toBe(0);
     expect(fresh.score).toBe(0);
-    expect(fresh.player.health).toBe(100);
+    expect(fresh.player.health).toBe(20);
     expect(fresh.enemies).toHaveLength(0);
     expect(fresh.projectiles).toHaveLength(0);
     expect(fresh.stats).toEqual({ shotsFired: 0, enemiesDestroyed: 0, damageTaken: 0 });
-    expect(fresh.player.x).toBe(768);
-    expect(fresh.player.y).toBe(432);
+    expect(fresh.player.x).toBe(fresh.arena.width / 2);
+    expect(fresh.player.y).toBe(fresh.arena.height / 2);
     await expect(page.getByTestId('game-canvas')).toHaveCount(1);
   });
 });

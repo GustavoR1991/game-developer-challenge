@@ -8,24 +8,37 @@ Pirate Battle is a single-page app with two clearly separated worlds:
 
 ```
 src/
-  app/            App shell, hash router, services context, network-control facade
-  ui/             React screens and components (menu, options, game, result, HUD, dialogs)
+  app/                 App shell, hash router, services context, network-control facade
+  api/                 Contracts (zod), Axios client, TanStack Query hooks, submission outbox
+  mocks/               MSW handlers, persisted mock database, fixtures, network scenarios
+  storage/             Typed localStorage helpers (options, profile, last result)
+  utils/               Math, ids, asset URLs
   game/
-    config/       Typed gameplay config + per-match frozen snapshot
-    core/         Seeded RNG, fixed-step clock
-    entities/     Entity and event types
-    systems/      Movement, collisions, player weapons, enemy AI, projectiles, spawner, damage
-    simulation/   GameSimulation (orchestrates systems) and its state/context
-    world/        Arena layout and geometry (rounded-rectangle island colliders)
-    input/        Keyboard + touch → InputCommands
-    render/       PixiJS views (arena, ships, health bars, projectiles, effects)
-    bridge/       GameSession (loop, lifecycle, pause) and HudStore (React sync)
-    assets/       Atlas loading with progress and typed failures
-    audio/        Sound effects mapped from simulation events
-    testing/      Test hooks (seed, manual clock, balance overrides, state inspection)
-  api/            Contracts (zod), Axios client, TanStack Query hooks, submission outbox
-  mocks/          MSW handlers, persisted mock database, fixtures, network scenarios
-  storage/        Typed localStorage helpers (options, profile, last result)
+    config/            Typed gameplay config + per-match frozen snapshot
+    simulation/        GameSimulation, state, events, seeded RNG, fixed-step clock
+      systems/         Movement, collisions, player weapons, enemy AI, projectiles, spawner, damage
+      world/           Arena layout (landmasses, decorations) and rounded-rectangle colliders
+    input/             Keyboard + touch -> InputCommands
+    render/            PixiJS: textures, camera, arena, ships, health bars, projectiles, effects
+    session/           GameSession (loop, lifecycle, pause) and HudStore (React sync)
+    audio/             Sound effects mapped from simulation events
+    testing/           Test hooks (seed, manual clock, balance overrides, state inspection)
+  ui/
+    screens/           Menu, Options, Game, Result, Captain's Log
+    components/
+      common/          Buttons, dialog, pagination, query states, footer
+      menu/            Controls help, options form, network scenario panel
+      log/             Captain's Log tabs, ranking and history tables
+      game/            HUD and touch controls
+    styles/            Global CSS
+public/assets/
+  images/              Menu background and Jungle Gaming logo
+  sheets/              ships.png + ships.json (atlas), tiles.png / tiles@2x.png (tile sheet)
+  tiles/               Water tile (1x / 2x) used by the tiling water
+  ui/default|retina/   Menu, HUD and control images used by React and the in-game health bars
+  sounds/              Sound effects
+assets-src/            Source XML of the ship atlas (converted by scripts/build-atlases.mjs)
+docs/reference/        Reference screenshots provided with the challenge
 ```
 
 ## React ⇄ PixiJS integration
@@ -90,11 +103,11 @@ Balancing decisions:
 
 ## Assets
 
-`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas and the tile sheet grid into PixiJS JSON atlases (`public/assets/atlases`). Ships, effects and cannonballs come from one atlas, tiles from another and HUD bars from the provided `ui_sheet` atlas, so the whole arena is drawn from a handful of textures and batches well. On screens with a device pixel ratio ≥ 1.5 the retina tile and UI atlases are used.
+`scripts/build-atlases.mjs` converts the provided Starling XML ship atlas (`assets-src/`) into a PixiJS JSON atlas (`public/assets/sheets/ships.json`). Ships, effects, cannonballs, crew, dinghies and loose cannons come from that atlas; islands, walls, towers and vegetation are cut from the single tile sheet (the sand and grass islands are drawn from whole blocks with a nine-slice sprite, so there are no tile seams); water is a tiling sprite. The whole arena is drawn from four textures and batches well. On screens with a device pixel ratio ≥ 1.5 the 2x tile sheet and water are used. Duplicated copies of the art (loose PNGs already present in the sheets, vector sources, the UI atlas) were removed from the build.
 
 `loadCombatTextures` loads them with a progress callback. Failures become an `AssetLoadError`; the game screen shows an error dialog with Retry, and Pixi's loader drops failed entries from its cache, so retrying fetches again.
 
-The canvas uses `resizeTo` its container with `autoDensity` and `resolution = min(devicePixelRatio, 2)`. The world has a fixed logical size (1536 × 864) that is uniformly scaled and letterboxed into the available space, so proportions, arena limits and coordinates never change with the screen (`GameRenderer.screenToWorld` converts back if needed). On touch devices the game requires landscape; in portrait it pauses and asks the player to rotate.
+The canvas uses `resizeTo` its container with `autoDensity` and `resolution = min(devicePixelRatio, 2)`. The world has a fixed logical size (2112 × 1248) larger than the view (about 1536 × 864 world units). The renderer scales the world uniformly to *cover* the screen (never letterboxed) and a camera follows the player, clamped to the arena edges, so the map always fills the screen while proportions, limits and world coordinates stay the same on every device (`GameRenderer.screenToWorld` converts back if needed). On phones held in portrait the game screen is rotated 90° with CSS so the battle is always played in landscape.
 
 ## Local persistence
 
@@ -126,7 +139,7 @@ Defined once in `src/api/contracts/matches.ts` with zod and shared by the client
 
 A `MatchRecord` holds `matchId`, `playerId`, `playerName`, `playedAt`, `score`, `durationSeconds` (effective, pauses excluded), `endReason` and the `config` used. Pages carry `items, page, pageSize, totalItems, totalPages, revision`.
 
-The ranking only compares matches with the same configuration and is ordered by: score (desc), duration survived (desc), date (asc), then match id — a total, deterministic order.
+The ranking only compares matches with the same configuration and lists each captain once, with their best match. It is ordered by: score (desc), duration survived (desc), date (asc), then match id — a total, deterministic order. Every completed match is still stored once and shown in Match History.
 
 ### Client
 

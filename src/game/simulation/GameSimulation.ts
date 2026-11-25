@@ -1,13 +1,13 @@
 import type { MatchConfig } from '../config/gameConfig';
-import { createRandom } from '../core/random';
-import type { GameEvent, Ship } from '../entities/types';
+import { createRandom } from './random';
+import type { GameEvent, Ship } from './types';
 import type { InputCommands } from '../input/commands';
-import { endMatch } from '../systems/combat';
-import { updateEnemies } from '../systems/enemies';
-import { updatePlayer } from '../systems/player';
-import { updateProjectiles } from '../systems/projectiles';
-import { updateSpawner } from '../systems/spawner';
-import type { ArenaLayout } from '../world/arenaLayout';
+import { endMatch } from './systems/combat';
+import { updateEnemies } from './systems/enemies';
+import { updatePlayer } from './systems/player';
+import { updateProjectiles } from './systems/projectiles';
+import { updateSpawner } from './systems/spawner';
+import type { ArenaLayout } from './world/arenaLayout';
 import type { SimulationContext, SimulationState } from './context';
 
 export interface GameSimulationOptions {

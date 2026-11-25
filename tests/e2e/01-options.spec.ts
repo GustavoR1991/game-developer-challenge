@@ -45,8 +45,13 @@ test.describe('Options', () => {
     await expect(page.getByLabel('Captain name')).toHaveValue('Anne Bonny');
 
     await page.getByRole('button', { name: 'Main Menu' }).click();
-    await expect(page.getByTestId('main-menu')).toContainText('Anne Bonny');
-    await expect(page.getByTestId('main-menu')).toContainText('90 s battles');
+    await expect(page.getByTestId('main-menu')).toBeVisible();
+    await page.getByRole('button', { name: 'Ranking' }).click();
+    await expect(page.getByTestId('ranking-panel')).toContainText(
+      '90 second battles · 3 second spawn interval',
+    );
+    await page.getByRole('tab', { name: 'Match History' }).click();
+    await expect(page.getByTestId('history-panel')).toContainText('Anne Bonny · Your recent battles');
     expect(consoleErrors).toEqual([]);
   });
 
@@ -58,7 +63,7 @@ test.describe('Options', () => {
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('options-screen')).toBeVisible();
 
-    await page.goto('/#/menu');
+    await page.goto('/#/ranking');
     const rankingTab = page.getByRole('tab', { name: 'Ranking' });
     await rankingTab.focus();
     await page.keyboard.press('ArrowRight');

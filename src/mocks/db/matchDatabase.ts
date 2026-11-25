@@ -86,8 +86,13 @@ export class MatchDatabase {
   }
 
   ranking(config: MatchConfigDto, page: number, pageSize: number, dataset: Dataset): RankingPage {
-    const ranked = this.records(dataset)
-      .filter((record) => sameConfig(record.config, config))
+    const bestByPlayer = new Map<string, MatchRecord>();
+    for (const record of this.records(dataset)) {
+      if (!sameConfig(record.config, config)) continue;
+      const best = bestByPlayer.get(record.playerId);
+      if (!best || compareRanking(record, best) < 0) bestByPlayer.set(record.playerId, record);
+    }
+    const ranked = [...bestByPlayer.values()]
       .sort(compareRanking)
       .map((record, index) => ({ ...record, rank: index + 1 }));
     return { ...paginate(ranked, page, pageSize), revision: this.state.revision };
@@ -114,9 +119,11 @@ export class MatchDatabase {
   private records(dataset: Dataset): readonly MatchRecord[] {
     if (dataset === 'empty') return [];
     if (dataset === 'many-pages') {
-      const extra = createFixtureRecords(MANY_PAGES_EXTRA, 7).map((record) => ({
+      const extra = createFixtureRecords(MANY_PAGES_EXTRA, 7).map((record, index) => ({
         ...record,
         matchId: `bulk-${record.matchId}`,
+        playerId: `bulk-player-${String(index).padStart(4, '0')}`,
+        playerName: `Corsair ${index + 1}`,
       }));
       return [...this.state.records, ...extra];
     }

@@ -1,6 +1,6 @@
 import { sound } from '@pixi/sound';
 import { assetUrl } from '../../utils/assetUrl';
-import type { GameEvent } from '../entities/types';
+import type { GameEvent } from '../simulation/types';
 import { isMuted } from './soundSettings';
 
 export const SOUND_FILES = {

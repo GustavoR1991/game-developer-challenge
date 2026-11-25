@@ -25,6 +25,13 @@ test.describe('Pause', () => {
     expect(during.projectiles).toEqual(paused.projectiles);
     expect(during.stats.shotsFired).toBe(fired.stats.shotsFired);
 
+    await expect(dialog).toContainText('Ready when you are.');
+    await dialog.getByRole('button', { name: 'Options' }).click();
+    const optionsDialog = page.getByRole('dialog', { name: 'Options' });
+    await expect(optionsDialog.getByLabel('Game session time', { exact: true })).toBeVisible();
+    await optionsDialog.getByRole('button', { name: 'Back' }).click();
+    expect((await advance(page, 1)).elapsedSeconds).toBe(paused.elapsedSeconds);
+
     await dialog.getByRole('button', { name: 'Resume' }).click();
     await expect(dialog).toBeHidden();
     const resumed = await advance(page, 0.5);

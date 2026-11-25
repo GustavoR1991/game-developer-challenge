@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { endReasonSchema, matchConfigSchema } from '../api/contracts/matches';
-import type { MatchResult } from '../game/bridge/matchResult';
+import type { MatchResult } from '../game/session/matchResult';
 import { readJson, STORAGE_KEYS, writeJson } from './localStore';
 
 const lastResultSchema = z.object({

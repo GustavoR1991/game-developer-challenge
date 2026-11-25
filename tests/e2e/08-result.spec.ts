@@ -9,9 +9,9 @@ test.describe('Result screen', () => {
     });
     await playUntilResult(page);
 
-    await expect(page.getByRole('heading', { name: 'Ship destroyed' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Battle complete' })).toBeVisible();
     await expect(page.getByTestId('result-score')).toHaveText('0');
-    await expect(page.getByTestId('result-reason')).toHaveText('Ship destroyed');
+    await expect(page.getByTestId('result-reason')).toHaveText('Defeated');
     const duration = await page.getByTestId('result-duration').textContent();
     expect(duration).toMatch(/^00:\d\d$/);
     await expect(page.getByTestId('submission-status')).toHaveAttribute('data-status', 'confirmed');
@@ -21,7 +21,7 @@ test.describe('Result screen', () => {
     await page.reload();
     await expect(page.getByTestId('result-screen')).toBeVisible();
     await expect(page.getByTestId('result-duration')).toHaveText(duration ?? '');
-    await expect(page.getByTestId('result-reason')).toHaveText('Ship destroyed');
+    await expect(page.getByTestId('result-reason')).toHaveText('Defeated');
     await expect(page.getByTestId('submission-status')).toHaveAttribute('data-status', 'confirmed');
 
     await page.getByRole('button', { name: 'Play Again' }).click();

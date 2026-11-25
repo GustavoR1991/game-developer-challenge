@@ -2,6 +2,8 @@ import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { SubmissionWorker } from '../api/submissions/SubmissionWorker';
 import { loadProfile, type PlayerProfile } from '../storage/profileStorage';
+import { AppFooter } from '../ui/components/common/AppFooter';
+import { CaptainsLogScreen } from '../ui/screens/CaptainsLogScreen';
 import { MainMenuScreen } from '../ui/screens/MainMenuScreen';
 import { OptionsScreen } from '../ui/screens/OptionsScreen';
 import { ResultScreen } from '../ui/screens/ResultScreen';
@@ -41,6 +43,9 @@ function CurrentScreen() {
       );
     case 'result':
       return <ResultScreen />;
+    case 'ranking':
+    case 'history':
+      return <CaptainsLogScreen tab={route} />;
     default:
       return <MainMenuScreen />;
   }
@@ -59,6 +64,7 @@ export function App({ queryClient, networkControl }: AppProps) {
         <SubmissionWorker />
         <div className="app-shell">
           <CurrentScreen />
+          <AppFooter />
         </div>
       </AppServicesContext.Provider>
     </QueryClientProvider>

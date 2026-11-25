@@ -4,7 +4,7 @@ import type { SubmissionEntry } from '../../api/submissions/submissionStore';
 import { navigate } from '../../app/router';
 import { loadLastResult } from '../../storage/lastResultStorage';
 import { endReasonLabel, formatClock } from '../format';
-import { GameButton } from '../components/GameButton';
+import { GameButton } from '../components/common/GameButton';
 
 function SubmissionStatus({ entry }: { entry: SubmissionEntry | undefined }) {
   if (!entry) {
@@ -30,7 +30,7 @@ function SubmissionStatus({ entry }: { entry: SubmissionEntry | undefined }) {
     >
       {status === 'confirmed' ? (
         <p className="success-text" style={{ margin: 0 }}>
-          Saved to the ranking and your match history.
+          Saved to your match history.
         </p>
       ) : status === 'failed' ? (
         <>
@@ -77,38 +77,24 @@ export function ResultScreen() {
     );
   }
 
-  const title = result.endReason === 'time_up' ? 'Battle complete' : 'Ship destroyed';
-
   return (
     <main className="screen" data-testid="result-screen">
-      <section className="panel" aria-labelledby="result-title">
+      <section className="panel panel--result" aria-labelledby="result-title">
         <h1 id="result-title" ref={headingRef} tabIndex={-1} className="panel__title">
-          {title}
+          Battle complete
         </h1>
-        <p className="result-score" data-testid="result-score">
+        <p className="result-score" data-testid="result-score" aria-label={`${result.score} points`}>
           {result.score}
         </p>
-        <p className="log-meta" style={{ marginBottom: 0 }}>
-          Points
+        <p className="result-summary">
+          <span>Points</span> ·{' '}
+          <span data-testid="result-duration">{formatClock(result.durationSeconds)}</span> ·{' '}
+          <span data-testid="result-reason">{endReasonLabel(result.endReason)}</span>
         </p>
-        <dl className="result-details">
-          <dt>Time played</dt>
-          <dd data-testid="result-duration">{formatClock(result.durationSeconds)}</dd>
-          <dt>Ended by</dt>
-          <dd data-testid="result-reason">{endReasonLabel(result.endReason)}</dd>
-          <dt>Setup</dt>
-          <dd>
-            {result.config.durationSeconds} s · {result.config.spawnIntervalSeconds} s spawns
-          </dd>
-          <dt>Shots fired</dt>
-          <dd>{result.stats.shotsFired}</dd>
-        </dl>
         <SubmissionStatus entry={entry} />
         <div className="stack">
           <GameButton onClick={() => navigate('play')}>Play Again</GameButton>
-          <GameButton variant="secondary" onClick={() => navigate('menu')}>
-            Main Menu
-          </GameButton>
+          <GameButton onClick={() => navigate('menu')}>Main Menu</GameButton>
         </div>
       </section>
     </main>

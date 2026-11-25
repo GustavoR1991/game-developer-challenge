@@ -1,6 +1,6 @@
-import { Container, Sprite, type Spritesheet, type Texture } from 'pixi.js';
-import { frame } from '../assets/combatAssets';
-import type { ShipKind } from '../entities/types';
+import { Container, Graphics, Sprite, type Spritesheet, type Texture } from 'pixi.js';
+import { frame } from './combatTextures';
+import type { ShipKind } from '../simulation/types';
 import {
   COLORS,
   EFFECT_DURATIONS,
@@ -41,6 +41,19 @@ interface EffectSpec {
 }
 
 const DEBRIS_PIECES = 4;
+const SURVIVOR_SECONDS = 7;
+const SURVIVOR_FADE_SECONDS = 1.5;
+const SURVIVOR_RING_RADIUS = 22;
+
+interface Floater {
+  container: Container;
+  age: number;
+  duration: number;
+  velocityX: number;
+  velocityY: number;
+  spin: number;
+  bobPhase: number;
+}
 
 export class EffectsLayer {
   readonly below: Container;
@@ -51,6 +64,9 @@ export class EffectsLayer {
   private readonly explosionFrames: readonly Texture[];
   private readonly debrisTextures: readonly Texture[];
   private readonly smallBlast: Texture;
+  private readonly crewTextures: readonly Texture[];
+  private readonly dinghyTextures: readonly Texture[];
+  private readonly floaters: Floater[] = [];
 
   constructor(ships: Spritesheet) {
     this.ships = ships;
@@ -65,10 +81,12 @@ export class EffectsLayer {
     ];
     this.debrisTextures = ['wood_1', 'wood_2', 'wood_3', 'wood_4'].map((name) => frame(ships, name));
     this.smallBlast = frame(ships, 'explosion_3');
+    this.crewTextures = [1, 2, 3, 4, 5, 6].map((index) => frame(ships, `crew_${index}`));
+    this.dinghyTextures = [1, 2, 3].map((index) => frame(ships, `dinghy_small_${index}`));
   }
 
   get activeCount(): number {
-    return this.active.length;
+    return this.active.length + this.floaters.length;
   }
 
   muzzleFlash(x: number, y: number, angle: number): void {
@@ -153,6 +171,55 @@ export class EffectsLayer {
     }
   }
 
+  survivors(x: number, y: number, angle: number, seed: number): void {
+    const sideX = Math.cos(angle + Math.PI / 2);
+    const sideY = Math.sin(angle + Math.PI / 2);
+    for (let index = 0; index < 2; index += 1) {
+      const direction = index === 0 ? 1 : -1;
+      const container = new Container();
+      const ring = new Graphics()
+        .circle(0, 0, SURVIVOR_RING_RADIUS)
+        .stroke({ width: 4, color: 0xffffff, alpha: 0.85 })
+        .circle(0, 0, SURVIVOR_RING_RADIUS + 10)
+        .stroke({ width: 3, color: 0xffffff, alpha: 0.25 });
+      const crew = new Sprite(
+        this.crewTextures[(seed + index) % this.crewTextures.length] ?? this.smallBlast,
+      );
+      crew.anchor.set(0.5);
+      crew.scale.set(1.3);
+      container.addChild(ring, crew);
+      container.position.set(x + sideX * 46 * direction, y + sideY * 46 * direction);
+      container.rotation = angle + index;
+      this.below.addChild(container);
+      this.floaters.push({
+        container,
+        age: 0,
+        duration: SURVIVOR_SECONDS,
+        velocityX: sideX * 14 * direction,
+        velocityY: sideY * 14 * direction,
+        spin: 0.3 * direction,
+        bobPhase: seed + index,
+      });
+    }
+    const dinghy = new Sprite(this.dinghyTextures[seed % this.dinghyTextures.length] ?? this.smallBlast);
+    dinghy.anchor.set(0.5);
+    dinghy.scale.set(1.2);
+    const boat = new Container();
+    boat.addChild(dinghy);
+    boat.position.set(x - Math.cos(angle) * 50, y - Math.sin(angle) * 50);
+    boat.rotation = angle + 0.8;
+    this.below.addChild(boat);
+    this.floaters.push({
+      container: boat,
+      age: 0,
+      duration: SURVIVOR_SECONDS + 1,
+      velocityX: -Math.cos(angle) * 10,
+      velocityY: -Math.sin(angle) * 10,
+      spin: 0.12,
+      bobPhase: seed,
+    });
+  }
+
   wreck(kind: ShipKind, x: number, y: number, angle: number): void {
     this.spawn({
       texture: frame(this.ships, shipFrameName(kind, WRECK_STAGE)),
@@ -167,7 +234,29 @@ export class EffectsLayer {
     });
   }
 
+  private updateFloaters(frameSeconds: number): void {
+    for (let index = this.floaters.length - 1; index >= 0; index -= 1) {
+      const floater = this.floaters[index];
+      if (!floater) continue;
+      floater.age += frameSeconds;
+      if (floater.age >= floater.duration) {
+        floater.container.destroy({ children: true });
+        this.floaters.splice(index, 1);
+        continue;
+      }
+      const slow = Math.max(0, 1 - floater.age / floater.duration);
+      floater.container.x += floater.velocityX * frameSeconds * slow;
+      floater.container.y += floater.velocityY * frameSeconds * slow;
+      floater.container.rotation += floater.spin * frameSeconds * slow;
+      floater.container.scale.set(1 + Math.sin(floater.age * 3 + floater.bobPhase) * 0.04);
+      const fadeStart = floater.duration - SURVIVOR_FADE_SECONDS;
+      floater.container.alpha =
+        floater.age > fadeStart ? 1 - (floater.age - fadeStart) / SURVIVOR_FADE_SECONDS : 1;
+    }
+  }
+
   update(frameSeconds: number): void {
+    this.updateFloaters(frameSeconds);
     for (let index = this.active.length - 1; index >= 0; index -= 1) {
       const effect = this.active[index];
       if (!effect) continue;
@@ -229,6 +318,8 @@ export class EffectsLayer {
 
   destroy(): void {
     this.clear();
+    for (const floater of this.floaters) floater.container.destroy({ children: true });
+    this.floaters.length = 0;
     for (const sprite of this.free) sprite.destroy();
     this.free.length = 0;
     this.below.destroy({ children: true });

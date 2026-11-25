@@ -5,7 +5,7 @@ test.describe('Asset loading', () => {
 
   test('shows loading progress before the battle starts', async ({ page }) => {
     await openApp(page);
-    await page.route('**/assets/atlases/ships.json', async (route) => {
+    await page.route('**/assets/sheets/ships.json', async (route) => {
       await new Promise((resolve) => setTimeout(resolve, 600));
       await route.continue();
     });
@@ -20,7 +20,7 @@ test.describe('Asset loading', () => {
 
   test('reports a failure and starts after a retry', async ({ page }) => {
     await openApp(page);
-    await page.route('**/assets/atlases/ships.json', (route) => route.abort('failed'));
+    await page.route('**/assets/sheets/ships.json', (route) => route.abort('failed'));
     await page.getByRole('button', { name: 'Play', exact: true }).click();
 
     const dialog = page.getByTestId('asset-error');
@@ -28,7 +28,7 @@ test.describe('Asset loading', () => {
     await expect(dialog.getByRole('alert')).toContainText('could not be loaded');
     await expect(page.getByTestId('game-canvas')).toHaveCount(0);
 
-    await page.unroute('**/assets/atlases/ships.json');
+    await page.unroute('**/assets/sheets/ships.json');
     await dialog.getByRole('button', { name: 'Retry' }).click();
     await waitForSession(page);
     await expect(dialog).toBeHidden();

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-export const ROUTES = ['menu', 'options', 'play', 'result'] as const;
+export const ROUTES = ['menu', 'options', 'play', 'result', 'ranking', 'history'] as const;
 export type Route = (typeof ROUTES)[number];
 
 const DEFAULT_ROUTE: Route = 'menu';

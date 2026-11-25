@@ -1,8 +1,8 @@
 import { Application, Container } from 'pixi.js';
-import { frame, type CombatTextures } from '../assets/combatAssets';
-import type { GameEvent, Ship } from '../entities/types';
+import { frame, type CombatTextures } from './combatTextures';
+import type { GameEvent, Ship } from '../simulation/types';
 import type { SimulationState } from '../simulation/context';
-import type { ArenaLayout } from '../world/arenaLayout';
+import type { ArenaLayout } from '../simulation/world/arenaLayout';
 import { ArenaView } from './ArenaView';
 import { EffectsLayer } from './EffectsLayer';
 import { HealthBarTextures } from './HealthBar';
@@ -37,16 +37,20 @@ export class GameRenderer {
   private readonly shipViews = new Map<number, ShipView>();
   private readonly textures: CombatTextures;
   private viewport: ViewportTransform = { scale: 1, offsetX: 0, offsetY: 0 };
+  private focusX: number;
+  private focusY: number;
   private shakeRemaining = 0;
   private destroyed = false;
 
   private constructor(app: Application, textures: CombatTextures, arena: ArenaLayout) {
     this.app = app;
     this.arena = arena;
+    this.focusX = arena.playerStart.x;
+    this.focusY = arena.playerStart.y;
     this.textures = textures;
-    this.healthBars = new HealthBarTextures(frame(textures.ui, 'enemy_health_frame'), {
-      green: frame(textures.ui, 'enemy_health_fill_green'),
-      red: frame(textures.ui, 'enemy_health_fill_red'),
+    this.healthBars = new HealthBarTextures(textures.healthBars.frame, {
+      green: textures.healthBars.green,
+      red: textures.healthBars.red,
     });
 
     this.world = new Container({ label: 'world' });
@@ -56,7 +60,7 @@ export class GameRenderer {
     this.effects = new EffectsLayer(textures.ships);
 
     this.world.addChild(
-      new ArenaView(textures.tiles, textures.water, arena),
+      new ArenaView(textures, arena),
       this.effects.below,
       this.shipLayer,
       this.projectiles,
@@ -126,6 +130,7 @@ export class GameRenderer {
         case 'shipDestroyed':
           this.effects.wreck(event.kind, event.x, event.y, event.angle);
           this.effects.explosion(event.x, event.y, event.kind === 'player' ? 1.4 : 1);
+          if (event.kind !== 'player') this.effects.survivors(event.x, event.y, event.angle, event.shipId);
           this.removeShipView(event.shipId);
           break;
         default:
@@ -148,6 +153,12 @@ export class GameRenderer {
       view.sync(ship, alpha);
     };
     syncShip(state.player);
+    const playerView = this.shipViews.get(state.player.id);
+    if (playerView) {
+      this.focusX = playerView.position.x;
+      this.focusY = playerView.position.y;
+    }
+    this.updateCamera();
     for (const enemy of state.enemies) syncShip(enemy);
     for (const id of this.shipViews.keys()) {
       if (!seen.has(id)) this.removeShipView(id);
@@ -191,16 +202,25 @@ export class GameRenderer {
     view.destroy({ children: true });
   }
 
+  private updateCamera(): void {
+    const { width, height } = this.app.screen;
+    const { scale } = this.viewport;
+    const minX = width - this.arena.width * scale;
+    const minY = height - this.arena.height * scale;
+    const offsetX = minX >= 0 ? minX / 2 : Math.min(0, Math.max(minX, width / 2 - this.focusX * scale));
+    const offsetY = minY >= 0 ? minY / 2 : Math.min(0, Math.max(minY, height / 2 - this.focusY * scale));
+    this.viewport = { scale, offsetX: Math.round(offsetX), offsetY: Math.round(offsetY) };
+    if (this.shakeRemaining <= 0) this.world.position.set(this.viewport.offsetX, this.viewport.offsetY);
+  }
+
   private readonly layout = (): void => {
     const { width, height } = this.app.screen;
-    const scale = Math.min(width / this.arena.width, height / this.arena.height);
-    this.viewport = {
-      scale,
-      offsetX: Math.round((width - this.arena.width * scale) / 2),
-      offsetY: Math.round((height - this.arena.height * scale) / 2),
-    };
+    const cover = Math.max(width / this.arena.view.width, height / this.arena.view.height);
+    const fill = Math.max(width / this.arena.width, height / this.arena.height);
+    const scale = Math.max(cover, fill);
+    this.viewport = { ...this.viewport, scale };
     this.world.scale.set(scale);
-    this.world.position.set(this.viewport.offsetX, this.viewport.offsetY);
+    this.updateCamera();
     this.render();
   };
 }

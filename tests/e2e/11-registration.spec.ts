@@ -23,9 +23,9 @@ async function lastMatchId(page: import('@playwright/test').Page): Promise<strin
 
 test.describe('Match registration', () => {
   test('registers a finished match once and refreshes both tabs', async ({ page }) => {
-    await openApp(page, { options: OPTIONS, balance: QUICK_DEATH });
-    await page.getByRole('tab', { name: 'Match History' }).click();
+    await openApp(page, { options: OPTIONS, balance: QUICK_DEATH, route: 'history' });
     await expect(page.getByText('No battles yet. Press Play to set sail!')).toBeVisible();
+    await page.getByRole('button', { name: 'Main Menu' }).click();
 
     await playUntilResult(page);
     await expect(page.getByTestId('submission-status')).toHaveAttribute('data-status', 'confirmed');
@@ -33,8 +33,9 @@ test.describe('Match registration', () => {
     expect(await storedRecords(page, matchId)).toBe(1);
 
     await page.getByRole('button', { name: 'Main Menu' }).click();
+    await page.getByRole('button', { name: 'Ranking' }).click();
     const ranking = page.getByTestId('ranking-panel');
-    await ranking.getByLabel('Enemy spawn interval for the ranking').selectOption('10');
+    await expect(ranking).toContainText('120 second battles · 10 second spawn interval');
     await expect(ranking.getByTestId('ranking-row')).toHaveCount(1);
     await expect(ranking.getByTestId('ranking-row')).toContainText(PLAYER_NAME);
     await expect(ranking.getByTestId('ranking-row')).toContainText('YOU');
@@ -42,8 +43,7 @@ test.describe('Match registration', () => {
     await page.getByRole('tab', { name: 'Match History' }).click();
     const history = page.getByTestId('history-panel');
     await expect(history.getByTestId('history-row')).toHaveCount(1);
-    await expect(history.getByTestId('history-row')).toContainText('Ship destroyed');
-    await expect(history.getByTestId('history-row')).toContainText('120 s / 10 s');
+    await expect(history.getByTestId('history-row')).toContainText('Defeated');
   });
 
   test('keeps a pending registration across refresh and registers it after recovery', async ({ page }) => {
@@ -60,10 +60,11 @@ test.describe('Match registration', () => {
     await page.getByRole('dialog', { name: 'Paused' }).getByRole('button', { name: 'Main Menu' }).click();
 
     await page.reload();
-    await page.getByRole('tab', { name: 'Match History' }).click();
+    await page.getByRole('button', { name: 'Match History' }).click();
     await expect(page.getByTestId('history-pending')).toHaveText('1 battle is waiting to be saved.');
     await expect(page.getByText('No battles yet. Press Play to set sail!')).toBeVisible();
 
+    await page.goto('/#/options');
     await page.getByTestId('network-panel').locator('summary').click();
     await page.getByLabel('Scenario').selectOption('success');
     await page.goto('/#/result');
@@ -73,7 +74,7 @@ test.describe('Match registration', () => {
     expect(await storedRecords(page, matchId)).toBe(1);
 
     await page.getByRole('button', { name: 'Main Menu' }).click();
-    await page.getByRole('tab', { name: 'Match History' }).click();
+    await page.getByRole('button', { name: 'Match History' }).click();
     await expect(page.getByTestId('history-row')).toHaveCount(1);
     await expect(page.getByTestId('history-pending')).toHaveCount(0);
   });

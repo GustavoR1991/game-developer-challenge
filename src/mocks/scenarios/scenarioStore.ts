@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createRandom, type Random } from '../../game/core/random';
+import { createRandom, type Random } from '../../game/simulation/random';
 import { readJson, removeKey, STORAGE_KEYS, writeJson } from '../../storage/localStore';
 import { DEFAULT_SCENARIO_ID, findScenario, SCENARIOS, type ScenarioDefinition } from './scenarios';
 

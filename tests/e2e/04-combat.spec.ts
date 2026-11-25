@@ -88,7 +88,7 @@ test.describe('Combat', () => {
     await openApp(page, { balance: NO_ENEMIES });
     await startMatch(page);
     const start = await state(page);
-    const island = start.arena.islands.find((candidate) => candidate.id === 'north')!;
+    const island = start.arena.islands.find((candidate) => candidate.id === 'reef-0')!;
     const center = {
       x: island.collider.x + island.collider.width / 2,
       y: island.collider.y + island.collider.height / 2,
@@ -96,7 +96,7 @@ test.describe('Combat', () => {
     await turnTo(page, angleBetween(start.player, center), 0.02);
     const fired = await hold(page, ['Space'], 1 / 60, 1 / 60);
     expect(fired.projectiles).toHaveLength(1);
-    const after = await advance(page, 0.6);
+    const after = await advance(page, 1.2);
     expect(after.projectiles).toHaveLength(0);
   });
 });

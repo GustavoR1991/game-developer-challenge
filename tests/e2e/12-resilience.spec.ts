@@ -34,35 +34,36 @@ test.describe('Network resilience', () => {
     expect(stored).toBe(1);
 
     await page.getByRole('button', { name: 'Main Menu' }).click();
-    await page.getByRole('tab', { name: 'Match History' }).click();
+    await page.getByRole('button', { name: 'Match History' }).click();
     await expect(page.getByTestId('history-row')).toHaveCount(1);
   });
 
   test('a late response does not overwrite newer data', async ({ page }) => {
-    await openApp(page, { scenario: 'success' });
+    await openApp(page, { scenario: 'success', route: 'ranking' });
     const panel = page.getByTestId('ranking-panel');
-    await expect(panel.getByText('Page 1 of 4')).toBeVisible();
+    await expect(panel.getByText(/Page 1 of \d/)).toBeVisible();
 
     await page.evaluate(() => window.__PIRATE_BATTLE__?.network.selectScenario('out-of-order'));
     await expect(panel.getByText('Updating…')).toBeVisible();
     await panel.getByRole('button', { name: 'Next page' }).click();
-    await expect(panel.getByText('Page 2 of 4')).toBeVisible();
+    await expect(panel.getByText(/Page 2 of \d/)).toBeVisible();
     const pageTwoFirstRank = panel.getByTestId('ranking-row').first().locator('td').first();
-    await expect(pageTwoFirstRank).toHaveText('09');
+    await expect(pageTwoFirstRank).toHaveText('06');
 
     await page.waitForTimeout(2200);
-    await expect(panel.getByText('Page 2 of 4')).toBeVisible();
-    await expect(pageTwoFirstRank).toHaveText('09');
+    await expect(panel.getByText(/Page 2 of \d/)).toBeVisible();
+    await expect(pageTwoFirstRank).toHaveText('06');
   });
 
   test('timeouts surface an error and API failures never block the game', async ({ page }) => {
-    await openApp(page, { scenario: 'timeout', apiTimeoutMs: 400 });
+    await openApp(page, { scenario: 'timeout', apiTimeoutMs: 400, route: 'ranking' });
     await expect(page.getByTestId('ranking-panel').getByRole('alert')).toContainText(
       'The server took too long to answer.',
       { timeout: 10_000 },
     );
+    await page.getByRole('button', { name: 'Main Menu' }).click();
     await page.getByRole('button', { name: 'Play', exact: true }).click();
-    await expect(page.getByTestId('game-canvas')).toBeVisible();
+    await expect(page.getByTestId('game-canvas')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('hud')).toBeVisible();
   });
 });

@@ -20,7 +20,7 @@ test.describe('Navigation, abandonment and touch', () => {
     );
     expect(submissions === null || submissions === '[]').toBe(true);
     expect(await page.evaluate(() => window.localStorage.getItem('pirate-battle:last-result:v1'))).toBeNull();
-    await page.getByRole('tab', { name: 'Match History' }).click();
+    await page.getByRole('button', { name: 'Match History' }).click();
     await expect(page.getByText('No battles yet. Press Play to set sail!')).toBeVisible();
   });
 

@@ -1,5 +1,5 @@
 import type { MatchConfigDto, MatchRecord } from '../../api/contracts/matches';
-import { createRandom } from '../../game/core/random';
+import { createRandom } from '../../game/simulation/random';
 
 export const FIXTURE_CAPTAINS = [
   'Captain Flint',

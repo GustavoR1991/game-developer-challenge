@@ -48,7 +48,7 @@ Open http://localhost:5173.
 | `npm run test:e2e:update` | Re-record the visual regression baselines |
 | `npm run test:e2e:report` | Open the last HTML report |
 | `npm run perf:profile` | Run the 3-minute performance and memory profile, then `node scripts/profiling-report.mjs "<hardware>"` to rebuild [docs/profiling/README.md](docs/profiling/README.md) |
-| `npm run assets:atlases` | Regenerate the PixiJS atlases from the provided sheets |
+| `npm run assets:atlases` | Regenerate `public/assets/sheets/ships.json` from `assets-src/` |
 
 ## Environment variables
 
@@ -70,9 +70,11 @@ All are optional. Copy `.env.example` to `.env.local` to change them.
 | Right broadside (3 balls) | `E` / `L` | right fire button |
 | Pause | `Esc` / `P` or the pause button | pause button |
 
+The map is larger than the screen; the camera follows your ship.
+
 Moving and firing work at the same time. Game keys are only captured while a battle is running; in menus and dialogs the keyboard behaves normally. Every menu is fully usable with `Tab`, `Shift+Tab`, `Enter`, `Space` and the arrow keys (tabs).
 
-On phones and tablets the battle is played in **landscape**. In portrait the game pauses and asks you to rotate the device; menus work in both orientations.
+On phones the battle is always shown in **landscape**: holding the phone upright rotates the game screen. Menus work in both orientations.
 
 ## Gameplay
 
@@ -99,7 +101,7 @@ The ranking and history API is implemented with MSW handlers that run in a servi
 
 ### Selecting a scenario
 
-- **UI:** main menu → **Network scenarios (mock API)** → choose a scenario. The change applies to the next requests.
+- **UI:** Options → **Network scenarios (mock API)** → choose a scenario. The change applies to the next requests.
 - **URL:** `/?scenario=<id>&mockSeed=<n>&mockLatency=<ms>` (for example `/?scenario=slow`). The selection is remembered.
 - **Tests / console:** `window.__PIRATE_BATTLE__.network.selectScenario('<id>')` (with `?e2e=1`).
 
@@ -122,7 +124,7 @@ The ranking and history API is implemented with MSW handlers that run in a servi
 
 ### Resetting
 
-**Reset mock API data** in the same panel restores the `success` scenario, the original fixtures, clears confirmed and pending submissions and the query cache. You can also clear the site data in the browser.
+**Reset mock API data** in the same panel (Options screen) restores the `success` scenario, the original fixtures, clears confirmed and pending submissions and the query cache. You can also clear the site data in the browser.
 
 ### Reproducing failures
 
@@ -175,4 +177,4 @@ vercel --prod
 
 ## Assets and licences
 
-All art and sound in `public/assets` were provided with the challenge by Jungle Gaming and are used as the visual base. The files in `public/assets/atlases/` are generated from the provided sheets by `scripts/build-atlases.mjs` (format conversion only; no pixels changed). No third-party fonts or remote resources are used.
+All art and sound in `public/assets` were provided with the challenge by Jungle Gaming and are used as the visual base. Only one copy of each image is shipped: the ship atlas (`sheets/ships.png` + `ships.json`, generated from `assets-src/ships_miscellaneous_sheet.xml` by `scripts/build-atlases.mjs` — format conversion only), the tile sheet, the water tile and the UI images. The reference screenshots live in `docs/reference/`. No third-party fonts or remote resources are used.

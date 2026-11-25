@@ -60,8 +60,8 @@ test.describe('Movement and arena', () => {
     await openApp(page, { balance: NO_ENEMIES });
     await startMatch(page);
     const start = await state(page);
-    const island = start.arena.islands.find((candidate) => candidate.id === 'north');
-    if (!island) throw new Error('north island missing');
+    const island = start.arena.islands.find((candidate) => candidate.id === 'reef-0');
+    if (!island) throw new Error('reef island missing');
     const center = {
       x: island.collider.x + island.collider.width / 2,
       y: island.collider.y + island.collider.height / 2,

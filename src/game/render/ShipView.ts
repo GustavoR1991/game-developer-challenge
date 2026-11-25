@@ -1,6 +1,6 @@
 import { Container, Sprite, type Spritesheet, type Texture } from 'pixi.js';
-import { frame } from '../assets/combatAssets';
-import type { Ship, ShipKind } from '../entities/types';
+import { frame } from './combatTextures';
+import type { Ship, ShipKind } from '../simulation/types';
 import { shortestAngleDelta } from '../../utils/math';
 import { HealthBar, type HealthBarTextures } from './HealthBar';
 import {

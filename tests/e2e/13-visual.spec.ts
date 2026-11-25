@@ -4,10 +4,15 @@ import { playUntilResult, QUICK_DEATH } from './helpers/endMatch';
 test.describe('Visual regression', () => {
   test('main menu', async ({ page }) => {
     await openApp(page);
-    await expect(page.getByTestId('ranking-row')).toHaveCount(8);
     await page.evaluate(() => document.fonts.ready);
+    await expect(page).toHaveScreenshot('main-menu.png', { fullPage: true, timeout: 20_000 });
+  });
+
+  test('captains log ranking', async ({ page }) => {
+    await openApp(page, { route: 'ranking' });
+    await expect(page.getByTestId('ranking-row')).toHaveCount(5);
     await expect(page.locator('.fetch-indicator')).toHaveText('');
-    await expect(page).toHaveScreenshot('main-menu.png', {
+    await expect(page).toHaveScreenshot('ranking.png', {
       fullPage: true,
       mask: [page.locator('.fetch-indicator')],
       timeout: 20_000,

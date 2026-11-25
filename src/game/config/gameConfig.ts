@@ -63,6 +63,8 @@ export interface ArenaConfig {
   width: number;
   height: number;
   tileSize: number;
+  viewWidth: number;
+  viewHeight: number;
 }
 
 export interface GameConfig {
@@ -87,7 +89,7 @@ export const OPTION_LIMITS = {
 
 export const DEFAULT_GAME_CONFIG: GameConfig = {
   match: { durationSeconds: 120 },
-  arena: { width: 1536, height: 864, tileSize: 96 },
+  arena: { width: 2112, height: 1248, tileSize: 96, viewWidth: 1536, viewHeight: 864 },
   spawn: {
     intervalSeconds: 4,
     initialDelaySeconds: 1.5,
@@ -108,7 +110,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     moveSpeed: 150,
     acceleration: 260,
     turnSpeed: 2.6,
-    collisionRadius: 30,
+    collisionRadius: 34,
     frontCannon: {
       cooldownSeconds: 0.5,
       projectile: { speed: 480, damage: 20, maxRange: 520, radius: 6 },
@@ -116,7 +118,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     broadside: {
       cooldownSeconds: 1.6,
       projectileCount: 3,
-      spacing: 26,
+      spacing: 30,
       projectile: { speed: 420, damage: 20, maxRange: 380, radius: 6 },
     },
   },
@@ -125,7 +127,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     moveSpeed: 100,
     acceleration: 200,
     turnSpeed: 2,
-    collisionRadius: 27,
+    collisionRadius: 30,
     ramDamage: 20,
   },
   shooter: {
@@ -133,7 +135,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     moveSpeed: 80,
     acceleration: 160,
     turnSpeed: 1.7,
-    collisionRadius: 30,
+    collisionRadius: 34,
     attackRange: 420,
     preferredDistance: 300,
     aimToleranceRadians: 0.18,

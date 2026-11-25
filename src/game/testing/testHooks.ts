@@ -1,6 +1,6 @@
 import type { ApiRuntimeSettings } from '../../api/client/apiRuntime';
 import type { NetworkControl } from '../../app/networkControl';
-import type { GameSession } from '../bridge/GameSession';
+import type { GameSession } from '../session/GameSession';
 import { DEFAULT_GAME_CONFIG, type GameConfig } from '../config/gameConfig';
 
 export type BalanceOverrides = {

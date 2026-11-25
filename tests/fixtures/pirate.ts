@@ -53,7 +53,7 @@ export interface AppSetup {
   latencyMs?: number | null;
   options?: { durationSeconds: number; spawnIntervalSeconds: number };
   playerName?: string;
-  route?: 'menu' | 'options' | 'play' | 'result';
+  route?: 'menu' | 'options' | 'play' | 'result' | 'ranking' | 'history';
   balance?: Record<string, Record<string, unknown>>;
   resultDelaySeconds?: number;
   apiTimeoutMs?: number;
@@ -108,7 +108,7 @@ export async function startMatch(page: Page): Promise<void> {
 }
 
 export async function waitForSession(page: Page): Promise<void> {
-  await expect(page.getByTestId('game-canvas')).toBeVisible();
+  await expect(page.getByTestId('game-canvas')).toBeVisible({ timeout: 30_000 });
   await page.waitForFunction(() => window.__PIRATE_BATTLE__?.session() != null);
 }
 

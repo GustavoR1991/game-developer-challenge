@@ -3,20 +3,22 @@ import { submissionStore } from '../../api/submissions/submissionStore';
 import { useAppServices } from '../../app/AppServices';
 import { navigate } from '../../app/router';
 import { playGameEvents, playSound, preloadSounds, stopAllSounds } from '../../game/audio/soundManager';
-import { loadCombatTextures, type CombatTextures } from '../../game/assets/combatAssets';
-import { GameSession } from '../../game/bridge/GameSession';
-import type { HudStore } from '../../game/bridge/HudStore';
-import type { MatchResult } from '../../game/bridge/matchResult';
-import { createRandomSeed } from '../../game/core/random';
+import { loadCombatTextures, type CombatTextures } from '../../game/render/combatTextures';
+import { GameSession } from '../../game/session/GameSession';
+import type { HudStore } from '../../game/session/HudStore';
+import type { MatchResult } from '../../game/session/matchResult';
+import { createRandomSeed } from '../../game/simulation/random';
 import type { InputAction } from '../../game/input/commands';
 import { balancedBaseConfig, registerSession, testControls } from '../../game/testing/testHooks';
 import { saveLastResult } from '../../storage/lastResultStorage';
 import { loadOptions } from '../../storage/optionsStorage';
 import { createId } from '../../utils/id';
-import { Dialog } from '../components/Dialog';
-import { GameButton } from '../components/GameButton';
-import { Hud } from '../components/Hud';
-import { TouchControls } from '../components/TouchControls';
+import { AppFooter } from '../components/common/AppFooter';
+import { Dialog } from '../components/common/Dialog';
+import { OptionsForm } from '../components/menu/OptionsForm';
+import { GameButton } from '../components/common/GameButton';
+import { Hud } from '../components/game/Hud';
+import { TouchControls } from '../components/game/TouchControls';
 
 type LoadState =
   | { kind: 'loading'; progress: number }
@@ -24,13 +26,11 @@ type LoadState =
   | { kind: 'ready'; textures: CombatTextures };
 
 const DEFAULT_RESULT_DELAY_SECONDS = 1.4;
-const PORTRAIT_TOUCH_QUERY = '(orientation: portrait) and (hover: none) and (pointer: coarse)';
 
 const PAUSE_TEXT: Record<string, string> = {
-  manual: 'The battle is paused.',
+  manual: 'Ready when you are.',
   focus: 'Paused because the game window lost focus.',
   hidden: 'Paused because the tab was hidden.',
-  orientation: 'Paused. Rotate your device to landscape to keep playing.',
 };
 
 function useAssets(): [LoadState, () => void] {
@@ -84,7 +84,7 @@ function GamePhaseSync({
 
 export function GameScreen() {
   const { profile } = useAppServices();
-  const [matchKey, setMatchKey] = useState(0);
+  const [pauseView, setPauseView] = useState<'menu' | 'options'>('menu');
   const [assets, retryAssets] = useAssets();
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -163,18 +163,7 @@ export function GameScreen() {
       created?.destroy();
       setSession(null);
     };
-  }, [assets, matchKey, handleEnded]);
-
-  useEffect(() => {
-    if (!session) return;
-    const query = window.matchMedia(PORTRAIT_TOUCH_QUERY);
-    const check = () => {
-      if (query.matches) session.pause('orientation');
-    };
-    check();
-    query.addEventListener('change', check);
-    return () => query.removeEventListener('change', check);
-  }, [session]);
+  }, [assets, handleEnded]);
 
   const handlePhase = useCallback((nextPhase: string, reason: string | null) => {
     setPhase({ phase: nextPhase, reason });
@@ -186,7 +175,7 @@ export function GameScreen() {
   );
 
   const resume = () => {
-    if (window.matchMedia(PORTRAIT_TOUCH_QUERY).matches) return;
+    setPauseView('menu');
     playSound('resume');
     session?.resume();
     stageRef.current?.focus({ preventScroll: true });
@@ -195,12 +184,6 @@ export function GameScreen() {
   const pause = () => {
     playSound('pause');
     session?.pause('manual');
-  };
-
-  const restart = () => {
-    setSession(null);
-    setPhase({ phase: 'running', reason: null });
-    setMatchKey((key) => key + 1);
   };
 
   const forceTouch = new URLSearchParams(window.location.search).get('touch') === '1';
@@ -273,14 +256,10 @@ export function GameScreen() {
           </div>
         ) : null}
 
-        <div className="overlay rotate-notice" aria-hidden={phase.reason !== 'orientation'}>
-          <p className="panel" style={{ width: 'auto' }}>
-            Rotate your device to landscape to play.
-          </p>
-        </div>
+        <AppFooter variant="game" />
       </main>
 
-      {session && phase.phase === 'paused' ? (
+      {session && phase.phase === 'paused' && pauseView === 'menu' ? (
         <Dialog
           title="Paused"
           description={PAUSE_TEXT[phase.reason ?? 'manual']}
@@ -290,11 +269,23 @@ export function GameScreen() {
         >
           <div className="stack">
             <GameButton onClick={resume}>Resume</GameButton>
-            <GameButton onClick={restart}>Restart</GameButton>
-            <GameButton variant="secondary" onClick={() => navigate('menu')}>
-              Main Menu
-            </GameButton>
+            <GameButton onClick={() => setPauseView('options')}>Options</GameButton>
+            <GameButton onClick={() => navigate('menu')}>Main Menu</GameButton>
           </div>
+        </Dialog>
+      ) : null}
+      {session && phase.phase === 'paused' && pauseView === 'options' ? (
+        <Dialog
+          title="Options"
+          description="Changes apply to your next battle."
+          testId="pause-options"
+          onEscape={() => setPauseView('menu')}
+        >
+          <OptionsForm
+            backLabel="Back"
+            onBack={() => setPauseView('menu')}
+            savedMessage="Options saved. They apply to your next battle."
+          />
         </Dialog>
       ) : null}
     </div>

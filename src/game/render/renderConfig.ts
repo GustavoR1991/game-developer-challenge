@@ -1,4 +1,4 @@
-import type { ShipKind } from '../entities/types';
+import type { ShipKind } from '../simulation/types';
 
 export const SHIP_COLOR_INDEX: Readonly<Record<ShipKind, number>> = {
   player: 5,
@@ -7,9 +7,9 @@ export const SHIP_COLOR_INDEX: Readonly<Record<ShipKind, number>> = {
 };
 
 export const SHIP_SCALE: Readonly<Record<ShipKind, number>> = {
-  player: 0.82,
-  chaser: 0.74,
-  shooter: 0.82,
+  player: 0.98,
+  chaser: 0.88,
+  shooter: 0.98,
 };
 
 export const SHIP_COLOR_VARIANTS = 6;
@@ -20,7 +20,7 @@ export const SPRITE_FORWARD_OFFSET = -Math.PI / 2;
 
 export const HEALTH_BAR = {
   scale: 0.48,
-  offsetY: -60,
+  offsetY: -72,
   steps: 40,
 };
 

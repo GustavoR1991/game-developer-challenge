@@ -1,4 +1,4 @@
-import type { EndReason } from '../game/entities/types';
+import type { EndReason } from '../game/simulation/types';
 
 export function formatClock(totalSeconds: number): string {
   const safe = Math.max(0, Math.round(totalSeconds));
@@ -11,21 +11,25 @@ export function formatDuration(seconds: number): string {
   return `${formatClock(seconds)}`;
 }
 
-const DATE_FORMAT = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+const DAY_FORMAT = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short' });
+const TIME_FORMAT = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+export function formatDay(iso: string): string {
+  return DAY_FORMAT.format(new Date(iso)).toUpperCase();
+}
+
+export function formatTime(iso: string): string {
+  return TIME_FORMAT.format(new Date(iso));
+}
 
 export function formatPlayedAt(iso: string): string {
-  return DATE_FORMAT.format(new Date(iso));
+  return `${formatDay(iso)} · ${formatTime(iso)}`;
 }
 
 export function endReasonLabel(reason: EndReason): string {
-  return reason === 'time_up' ? 'Time up' : 'Ship destroyed';
+  return reason === 'time_up' ? 'Time up' : 'Defeated';
 }
 
 export function configLabel(config: { durationSeconds: number; spawnIntervalSeconds: number }): string {
-  return `${config.durationSeconds} s battles · ${config.spawnIntervalSeconds} s spawn interval`;
+  return `${config.durationSeconds} second battles · ${config.spawnIntervalSeconds} second spawn interval`;
 }
